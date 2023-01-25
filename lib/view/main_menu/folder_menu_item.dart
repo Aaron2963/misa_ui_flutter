@@ -19,11 +19,20 @@ class _FolderMenuItemState extends State<FolderMenuItem> {
 
   Widget buildChild(model.MisaMenuItem item) {
     if (item is model.ViewMenuItem) {
-      return ViewMenuItem(menuItem: item);
+      return ViewMenuItem(
+        key: Key('${widget.menuItem.title}-${item.title}'),
+        menuItem: item,
+      );
     } else if (item is model.HyperlinkMenuItem) {
-      return HyperlinkMenuItem(menuItem: item);
+      return HyperlinkMenuItem(
+        key: Key('${widget.menuItem.title}-${item.title}'),
+        menuItem: item,
+      );
     } else if (item is model.FolderMenuItem) {
-      return FolderMenuItem(menuItem: item);
+      return FolderMenuItem(
+        key: Key('${widget.menuItem.title}-${item.title}'),
+        menuItem: item,
+      );
     } else {
       return const SizedBox();
     }
@@ -32,7 +41,7 @@ class _FolderMenuItemState extends State<FolderMenuItem> {
   @override
   Widget build(BuildContext context) {
     final item = widget.menuItem;
-    Color bg = isFold ? Colors.transparent : Colors.white12;
+    Color bg = Colors.transparent;
     return InkWell(
       onTap: () => setState(() => isFold = !isFold),
       onHover: (value) => setState(() => isHovered = value),
