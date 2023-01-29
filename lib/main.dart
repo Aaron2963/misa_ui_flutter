@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
+import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
 import 'package:misa_ui_flutter/settings/view_settings.dart';
 import 'package:misa_ui_flutter/view/main_menu/main_menu.dart';
@@ -10,6 +11,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MisaLocale()),
+        ChangeNotifierProvider(create: (_) => BodyStateProvider()),
       ],
       child: const MyApp(),
     ),
@@ -56,8 +58,11 @@ class MainFrame extends StatelessWidget {
               Expanded(
                 child: Container(
                   height: constraints.maxHeight,
-                  color: Colors.green,
-                  child: const Text('Main'),
+                  padding: const EdgeInsets.all(16),
+                  child: Body(
+                    pageSchema: context.watch<BodyStateProvider>().pageSchema,
+                    viewType: context.watch<BodyStateProvider>().viewType,
+                  ),
                 ),
               ),
             ],

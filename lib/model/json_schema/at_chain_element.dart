@@ -18,7 +18,7 @@ class AtChainElement extends ObjectJsonSchema {
 
   factory AtChainElement.fromJson(Map<String, dynamic> json) {
     String title = '';
-      for (String k in json['properties']) {
+      for (String k in json['properties'].keys) {
         if (k == json['@id']) continue;
         title = k;
         break;

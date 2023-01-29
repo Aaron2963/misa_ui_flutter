@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:misa_ui_flutter/controller/schema_controller.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/settings/string_extension.dart';
 
@@ -9,6 +10,8 @@ enum MenuItemType { folder, view, hyperlink }
 enum HyperlinkTarget { blank, self, parent, top, iframe }
 
 enum ViewType { list, detail, form, album, queryList }
+
+final SchemaController _schemaController = SchemaController();
 
 enum ViewFeature {
   filter,
@@ -99,18 +102,14 @@ class ViewMenuItem extends MisaMenuItem {
   }) : super(type: MenuItemType.view);
 
   factory ViewMenuItem.fromJson(Map<String, dynamic> map, {String title = ''}) {
-    late final PageSchema schema;
     List<ViewFeature> features = [];
     map = map['views'][0];
     String viewType = map['type'][0].toLowerCase() + map['type'].substring(1);
     for (String feature in map['component']) {
       features.add(ViewFeature.values.byName(feature.toLowerCamelCase()));
     }
-    if (map.containsKey('pageSchema')) {
-      schema = PageSchema.fromJson(map['pageSchema']);
-    } else {
-      schema = PageSchema.blank();
-    }
+    PageSchema schema =
+        _schemaController.getSchemaByUri(map['schema']['\$ref']) ?? PageSchema.blank();
     return ViewMenuItem(
       title: title,
       url: title,

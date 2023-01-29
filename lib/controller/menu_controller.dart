@@ -1,10 +1,14 @@
 import 'package:misa_ui_flutter/controller/mock/menu.dart';
+import 'package:misa_ui_flutter/controller/schema_controller.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
+
+final SchemaController _schemaController = SchemaController();
 
 class MenuController {
   Future<List<MisaMenuItem>> get() async {
     //TODO: get menu from server
     Map<String, dynamic> menu = mockMenu; // demo
+    await _schemaController.setStorageFromMenu(menu);
     List<MisaMenuItem> result = [];
     for (String k in menu.keys) {
       if (menu[k].containsKey('items')) {
