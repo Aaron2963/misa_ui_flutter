@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:misa_ui_flutter/controller/menu_controller.dart';
+import 'package:misa_ui_flutter/controller/menu_controller.dart' as controller;
 import 'package:misa_ui_flutter/model/menu_item.dart' as model;
 import 'package:misa_ui_flutter/settings/view_settings.dart';
 import 'package:misa_ui_flutter/view/main_menu/folder_menu_item.dart';
 import 'package:provider/provider.dart';
 
-final _controller = MenuController();
+final _controller = controller.MenuController();
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});

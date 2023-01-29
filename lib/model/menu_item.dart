@@ -48,7 +48,7 @@ class FolderMenuItem extends MisaMenuItem {
     this.children = const [],
   }) : super(type: MenuItemType.folder);
 
-  factory FolderMenuItem.fromMap(Map<String, dynamic> map,
+  factory FolderMenuItem.fromJson(Map<String, dynamic> map,
       {String title = ''}) {
     List<MisaMenuItem> children = [];
     IconData icon = IconData(
@@ -57,17 +57,17 @@ class FolderMenuItem extends MisaMenuItem {
     );
     for (String k in map['items'].keys) {
       if (map['items'][k].containsKey('items')) {
-        children.add(FolderMenuItem.fromMap(map['items'][k], title: k));
+        children.add(FolderMenuItem.fromJson(map['items'][k], title: k));
         continue;
       }
       // if item has 'views' key, push to result as ViewMenuItem
       if (map['items'][k].containsKey('views')) {
-        children.add(ViewMenuItem.fromMap(map['items'][k], title: k));
+        children.add(ViewMenuItem.fromJson(map['items'][k], title: k));
         continue;
       }
       // if item has 'href' key, push to result as HyperlinkMenuItem
       if (map['items'][k].containsKey('href')) {
-        children.add(HyperlinkMenuItem.fromMap(map['items'][k], title: k));
+        children.add(HyperlinkMenuItem.fromJson(map['items'][k], title: k));
         continue;
       }
     }
@@ -98,17 +98,23 @@ class ViewMenuItem extends MisaMenuItem {
     this.features = const [],
   }) : super(type: MenuItemType.view);
 
-  factory ViewMenuItem.fromMap(Map<String, dynamic> map, {String title = ''}) {
+  factory ViewMenuItem.fromJson(Map<String, dynamic> map, {String title = ''}) {
+    late final PageSchema schema;
     List<ViewFeature> features = [];
     map = map['views'][0];
     String viewType = map['type'][0].toLowerCase() + map['type'].substring(1);
     for (String feature in map['component']) {
       features.add(ViewFeature.values.byName(feature.toLowerCamelCase()));
     }
+    if (map.containsKey('pageSchema')) {
+      schema = PageSchema.fromJson(map['pageSchema']);
+    } else {
+      schema = PageSchema.blank();
+    }
     return ViewMenuItem(
       title: title,
       url: title,
-      pageSchema: PageSchema.fromMap(map['pageSchema'] ?? <String, dynamic>{}),
+      pageSchema: schema,
       viewType: ViewType.values.byName(viewType),
       features: features,
     );
@@ -128,7 +134,7 @@ class HyperlinkMenuItem extends MisaMenuItem {
     this.target = HyperlinkTarget.blank,
   }) : super(type: MenuItemType.hyperlink);
 
-  factory HyperlinkMenuItem.fromMap(Map<String, dynamic> map,
+  factory HyperlinkMenuItem.fromJson(Map<String, dynamic> map,
       {String title = ''}) {
     return HyperlinkMenuItem(
       title: title,
