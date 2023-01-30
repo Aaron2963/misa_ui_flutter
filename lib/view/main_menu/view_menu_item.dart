@@ -25,9 +25,8 @@ class _ViewMenuItemState extends State<ViewMenuItem> {
       onTap: () => setState(() {
         context.read<MainMenuStateProvider>().setActiveKey(widget.key, item);
         context.read<BodyStateProvider>().set(
-              title: item.title,
               pageSchema: item.pageSchema,
-              viewType: item.viewType,
+              viewMenuItem: item,
             );
       }),
       onHover: (value) => setState(() => isHovered = value),

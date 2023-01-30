@@ -28,12 +28,10 @@ class SchemaController {
   Future<bool> setStorage(String uri) async {
     // TODO: get schema from server
     storage[uri] = PageSchema.fromJson(mockSchema);
-    print('schema set: $uri : ${storage[uri]?.title ?? ''}');
     return true;
   }
 
   PageSchema? getSchemaByUri(String uri) {
-    print('getSchemaByUri: $uri : ${storage[uri]?.title ?? ''}');
     return storage[uri];
   }
 }

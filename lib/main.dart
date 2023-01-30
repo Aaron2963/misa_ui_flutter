@@ -23,17 +23,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: context.read<MisaLocale>().setLangCode('zhTW'),
-      builder: (context, snapshot) {
-        return MaterialApp(
-          title: 'Resource Management',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-          ),
-          home: const MainFrame(),
-        );
-      }
-    );
+        future: context.read<MisaLocale>().setLangCode('zhTW'),
+        builder: (context, snapshot) {
+          return MaterialApp(
+            title: 'Resource Management',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home: const MainFrame(),
+          );
+        });
   }
 }
 
@@ -61,7 +60,8 @@ class MainFrame extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Body(
                     pageSchema: context.watch<BodyStateProvider>().pageSchema,
-                    viewType: context.watch<BodyStateProvider>().viewType,
+                    viewMenuItem:
+                        context.watch<BodyStateProvider>().viewMenuItem,
                   ),
                 ),
               ),
