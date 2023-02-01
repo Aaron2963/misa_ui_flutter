@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:misa_ui_flutter/view/body/body.dart';
+import 'package:provider/provider.dart';
 
 class PaginationBar extends StatelessWidget {
-  final int current;
-  final int total;
 
-  const PaginationBar({super.key, required this.current, required this.total});
+  const PaginationBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final int current = context.watch<BodyStateProvider>().currentPage;
+    final int total = context.watch<BodyStateProvider>().totalPage;
     List<String> numbers = [];
     int mod = -2;
     while (numbers.length < 5) {
