@@ -1,65 +1,88 @@
 final Map<String, dynamic> mockSchema = {
   "\$schema": "http://json-schema.org/draft-06/schema#",
-  "title": "Counter Info",
-  "@table": "CNRIFO",
+  "title": "Textbook Info",
+  "@table": "Textbook",
   "type": "object",
   "properties": {
-    "CNRIFOID": {
+    "TextbookID": {
       "type": "string",
       "component": "hidden",
       "formOnly": true,
       "readonly": true
     },
-    "Name": {
+    "SERNO": {
       "type": "string",
-      "title": "Name",
+      "title": "Textbook No.",
       "component": "editbox",
       "purpose": ["header", "caption"]
     },
-    "CNRIFOTYPID": {
+    "ISBN": {"type": "string", "title": "ISBN", "component": "editbox"},
+    "Name": {
       "type": "string",
-      "title": "Counter Type",
+      "title": "Textbook Name",
+      "component": "editbox",
+      "purpose": ["header"]
+    },
+    "_TextbookTYPName": {
+      "type": "string",
+      "title": "Textbook Type",
+      "component": "editbox",
+      "readonly": true
+    },
+    "TextbookTYPID": {
+      "type": "string",
+      "title": "Textbook Type",
       "component": "select",
       "formOnly": true,
       "@chain": [
         {
-          "@table": "CNRIFOTYP:Brief",
-          "@id": "CNRIFOTYPID",
           "type": "object",
+          "@id": "TextbookTYPID",
+          "@table": "TextbookTYP:Brief",
           "properties": {
-            "CNRIFOTYPID": {"type": "string", "@column": "CNRIFOTYPID"},
+            "TextbookTYPID": {
+              "type": "string",
+              "component": "editbox",
+              "readonly": true
+            },
             "Name": {
               "type": "string",
-              "purpose": ["caption"]
+              "component": "editbox",
+              "purpose": "caption",
+              "readonly": true
             }
           }
         }
       ]
     },
-    "_CNRIFOTYPName": {
+    "EDTDCP": {
       "type": "string",
-      "title": "Counter Type",
-      "component": "editbox",
-      "readonly": true
+      "title": "Description",
+      "component": "editbox"
     },
-    "BKGDCP": {
+    "Keyword": {"type": "string", "title": "Keyword", "component": "editbox"},
+    "Author": {"type": "string", "title": "Author", "component": "editbox"},
+    "Translator": {
       "type": "string",
-      "title": "Background Description",
-      "component": "textarea",
-      "purpose": ["option"]
+      "title": "Translator",
+      "component": "editbox"
     },
-    "GNLDCP": {
+    "Brief": {
       "type": "string",
-      "title": "General Description",
-      "component": "textarea",
-      "purpose": ["option"]
+      "title": "Textbook Intro",
+      "component": "textarea"
+    },
+    "Detail": {
+      "type": "string",
+      "title": "Detail",
+      "component": "richtext",
+      "richtextStyles": ["../plugins/bootstrap/css/bootstrap.min.css"]
     },
     "_Pictures": {
       "type": "array",
       "title": "Pictures",
       "items": {
         "type": "object",
-        "title": "",
         "properties": {
           "_PictureFile": {
             "type": "string",
@@ -79,71 +102,41 @@ final Map<String, dynamic> mockSchema = {
         }
       }
     },
-    "StartDateTime": {
+    "_UploadFiles": {
+      "type": "array",
+      "title": "Files",
+      "items": {
+        "type": "object",
+        "properties": {
+          "_FileBinary": {
+            "type": "string",
+            "title": "File",
+            "component": "file"
+          },
+          "_FileTitle": {
+            "type": "string",
+            "title": "File Title",
+            "component": "editbox"
+          },
+          "_FileAlt": {
+            "type": "string",
+            "title": "File Alt",
+            "component": "editbox"
+          }
+        }
+      }
+    },
+    "ORIPublishDateTime": {
       "type": "string",
-      "title": "Start Time",
-      "component": "datetime",
+      "title": "Publish Date",
+      "component": "date",
       "purpose": ["header"]
-    },
-    "EndDateTime": {
-      "type": "string",
-      "title": "End Time",
-      "component": "datetime",
-      "purpose": ["header"]
-    },
-    "TargetPath": {
-      "type": "string",
-      "title": "Target Link",
-      "component": "editbox",
-      "purpose": ["option"]
-    },
-    "SlottingState": {
-      "type": "boolean",
-      "title": "On Sale",
-      "component": "select",
-      "enum": ["On", "Off"],
-      "texts": ["On Sale", "Not On Sale"],
-      "value": "Off",
-      "purpose": ["header"]
-    },
-    "SlottingSEQ": {
-      "type": "integer",
-      "title": "Sequence",
-      "component": "number"
-    },
-    "ModifyDateTime": {
-      "type": "string",
-      "title": "Last Modified",
-      "component": "editbox",
-      "purpose": ["timeline"],
-      "readonly": true
     }
   },
-  "filter": [
-    "CNRIFOID",
-    "Name",
-    "_CNRIFOTYPName",
-    "StartDateTime",
-    "EndDateTime",
-    "TargetPath",
-    "SlottingState",
-    "ModifyDateTime"
-  ],
-  "@id": "CNRIFOID",
+  "filter": ["TextbookID", "SERNO", "ISBN", "Name", "EDTDCP", "Keyword"],
+  "@id": "TextbookID",
   "dependentRequired": {
-    "insert": [
-      "Name",
-      "CNRIFOTYPID",
-      "StartDateTime",
-      "EndDateTime",
-      "SlottingState"
-    ],
-    "edit": [
-      "Name",
-      "CNRIFOTYPID",
-      "StartDateTime",
-      "EndDateTime",
-      "SlottingState"
-    ]
+    "insert": ["SERNO", "Name", "TextbookTYPID"],
+    "edit": ["SERNO", "Name", "TextbookTYPID"]
   }
 };
