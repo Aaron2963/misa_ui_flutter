@@ -1,4 +1,5 @@
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 class BooleanJsonSchema extends JsonSchema {
   BooleanJsonSchema({
@@ -41,5 +42,17 @@ class BooleanJsonSchema extends JsonSchema {
       disabled: json['disabled'] == true,
       value: json['value'] == true,
     );
+  }
+
+  @override
+  String display(MisaLocale locale, dynamic value) {
+    String trueText = '${key}_true';
+    String falseText = '${key}_false';
+    if (locale.translate(trueText) != trueText) {
+      return value == true
+          ? locale.translate(trueText)
+          : locale.translate(falseText);
+    }
+    return value == true ? 'YES' : 'NO';
   }
 }

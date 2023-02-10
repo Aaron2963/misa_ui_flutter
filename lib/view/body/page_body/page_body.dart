@@ -16,7 +16,9 @@ class PageBody extends StatelessWidget {
       );
     }
     if (viewMenuItem.viewType == ViewType.list) {
-      return const ListViewBody();
+      return const SingleChildScrollView(
+        child: ListViewBody(),
+      );
     }
     return Text(
         'Current View Type: ${viewMenuItem.viewType.toString().split('.').last}');

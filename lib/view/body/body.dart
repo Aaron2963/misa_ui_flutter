@@ -40,6 +40,7 @@ class _BodyState extends State<Body> {
         const Divider(),
         const FeatureBar(),
         const Expanded(child: PageBody()),
+        const FeatureBar.bottom(),
       ],
     );
   }
@@ -50,15 +51,16 @@ class BodyStateProvider extends ChangeNotifier {
   PageSchema? pageSchema;
   ViewMenuItem? viewMenuItem;
   int currentPage = 1;
-  int totalPage = 1;
+  int limit = 5;
+  int? totalPage;
   DataPayload? payload;
   DataController? _dataController;
 
   void changeViewMenu({PageSchema? pageSchema, ViewMenuItem? viewMenuItem}) {
     this.pageSchema = pageSchema;
     this.viewMenuItem = viewMenuItem;
-    if (pageSchema != null && pageSchema.atTable != null) {
-      _dataController = DataController(pageSchema.atTable!);
+    if (pageSchema != null && pageSchema.atTable.isNotEmpty) {
+      _dataController = DataController(pageSchema.atTable);
     } else {
       _dataController = null;
     }
@@ -72,19 +74,18 @@ class BodyStateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setCurrentPage(
-    int page, {
-    int total = 1,
-    int limit = 10,
-  }) async {
+  Future<void> setCurrentPage(int page) async {
+    if (totalPage != null && page > totalPage!) return;
     currentPage = page;
-    totalPage = total;
     if (_dataController != null) {
+      currentPage = page;
+      notifyListeners();
       payload = await _dataController!.select((page - 1) * limit, limit);
-      currentPage = payload!.page;
       totalPage = (payload!.total / limit).ceil();
+      notifyListeners();
+    } else {
+      notifyListeners();
     }
-    notifyListeners();
     return;
   }
 }

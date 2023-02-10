@@ -4,6 +4,7 @@ import 'package:misa_ui_flutter/model/json_schema/boolean_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/integer_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/string_json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 enum SchemaDataType { string, integer, boolean, object, array }
 
@@ -68,6 +69,10 @@ class JsonSchema {
       default:
         throw Exception('Unknown type: $type');
     }
+  }
+
+  String display(MisaLocale locale, dynamic value) {
+    throw UnimplementedError();
   }
 
   static Set<SchemaPurpose>? toPurposeSet(List<String>? list) {

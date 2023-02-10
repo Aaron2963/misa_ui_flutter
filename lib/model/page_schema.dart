@@ -7,8 +7,15 @@ class PageSchema extends ObjectJsonSchema {
   final List<JsonSchema>? order;
   final List<JsonSchema>? filter;
 
+  @override
+  final String atId;
+  @override
+  final String atTable;
+
   PageSchema({
     required super.properties,
+    required this.atId,
+    required this.atTable,
     this.headers,
     this.options,
     this.order,
@@ -20,8 +27,6 @@ class PageSchema extends ObjectJsonSchema {
     super.dollarId,
     super.dollarRef,
     super.dollarSchema = 'http://json-schema.org/draft-06/schema#',
-    super.atId,
-    super.atTable,
     super.atColumn,
     super.atChain,
     super.description,
@@ -34,7 +39,9 @@ class PageSchema extends ObjectJsonSchema {
     super.readOnly,
     super.disabled,
     super.value,
-  }) : super(key: 'pageRoot');
+  }) : super(
+          key: 'pageRoot',
+        );
 
   factory PageSchema.fromJson(Map<String, dynamic> json) {
     Map<String, JsonSchema> properties = {};
@@ -129,6 +136,8 @@ class PageSchema extends ObjectJsonSchema {
 
   factory PageSchema.blank() {
     return PageSchema(
+      atId: '',
+      atTable: '',
       properties: {},
       required: {},
       dependentRequired: {},

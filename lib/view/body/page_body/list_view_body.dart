@@ -16,6 +16,7 @@ class ListViewBody extends StatefulWidget {
 class _ListViewBodyState extends State<ListViewBody> {
   final int limit = 10;
   int currentPage = 0;
+  Set<String> selected = {};
 
   void changePage(BuildContext context, int page) {
     if (page == currentPage) return;
@@ -23,14 +24,21 @@ class _ListViewBodyState extends State<ListViewBody> {
     context.read<BodyStateProvider>().setCurrentPage(page);
   }
 
-  DataColumn _buildColumn(dynamic title) {
+  DataColumn _buildColumn(dynamic title, JsonSchema schema) {
     return DataColumn(
-      label: Expanded(child: Text(title.toString())),
+      numeric:
+          schema.type == SchemaDataType.integer || schema.component == 'number',
+      label: Expanded(
+        child: Text(title.toString()),
+      ),
     );
   }
 
-  DataCell _buildCell(dynamic value) {
-    return DataCell(Text(value.toString()));
+  DataCell _buildCell(dynamic value, VoidCallback onTap) {
+    return DataCell(
+      Text(value.toString()),
+      onTap: onTap,
+    );
   }
 
   @override
@@ -48,19 +56,48 @@ class _ListViewBodyState extends State<ListViewBody> {
     if (payload == null || pageSchema == null) {
       return const Center(child: Text("No data"));
     }
-    return DataTable(
-      columns: pageSchema.headers!
-          .map((JsonSchema e) =>
-              _buildColumn(locale.translate(e.title ?? e.key)))
-          .toList(),
-      rows: payload.data.map((Map<String, dynamic> d) {
-        return DataRow(
-          cells: pageSchema.headers!.map((JsonSchema e) {
-            // TODO: renderor, eg. component:select should render as element of texts
-            return _buildCell(d[e.key] ?? '');
-          }).toList(),
-        );
-      }).toList(),
+    return SizedBox(
+      width: double.infinity,
+      child: DataTable(
+        showCheckboxColumn: true,
+        columns: pageSchema.headers!
+            .map((JsonSchema e) =>
+                _buildColumn(locale.translate(e.title ?? e.key), e))
+            .toList(),
+        rows: List<DataRow>.generate(payload.data.length, (int i) {
+          final Map<String, dynamic> d = payload.data[i];
+          return DataRow(
+            color: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Theme.of(context).colorScheme.primary.withOpacity(0.08);
+                }
+                if (i.isEven) {
+                  return Colors.grey.withOpacity(0.2);
+                }
+                return null;
+              },
+            ),
+            selected: selected.contains(d[pageSchema.atId]),
+            onSelectChanged: (value) => setState(() {
+              if (value == true) {
+                selected.add(d[pageSchema.atId]);
+              } else {
+                selected.remove(d[pageSchema.atId]);
+              }
+            }),
+            cells: pageSchema.headers!.map((JsonSchema e) {
+              return _buildCell(
+                e.display(locale, d[e.key] ?? ''),
+                () {
+                  //TODO: open detail
+                  print('open detail: ${d[pageSchema.atId]}');
+                },
+              );
+            }).toList(),
+          );
+        }),
+      ),
     );
   }
 }

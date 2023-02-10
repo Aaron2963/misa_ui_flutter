@@ -1,4 +1,5 @@
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 class ObjectJsonSchema extends JsonSchema {
   final Map<String, JsonSchema>? properties;
@@ -49,7 +50,8 @@ class ObjectJsonSchema extends JsonSchema {
       for (var key in json['dependentRequired'].keys) {
         Set<JsonSchema> dependentRequiredSet = {};
         for (var dependentRequiredKey in json['dependentRequired'][key]) {
-          dependentRequiredSet.add(properties[dependentRequiredKey.toString()]!);
+          dependentRequiredSet
+              .add(properties[dependentRequiredKey.toString()]!);
         }
         dependentRequired[key.toString()] = dependentRequiredSet;
       }
@@ -81,5 +83,21 @@ class ObjectJsonSchema extends JsonSchema {
       disabled: json['disabled'] == true,
       value: json['value'],
     );
+  }
+
+  @override
+  String display(MisaLocale locale, dynamic value) {
+    if (render != null) {
+      String rs = '';
+      for (var k in render!) {
+        if (properties != null && properties!.containsKey(k)) {
+          rs += properties![k]!.display(locale, value[k]);
+        } else {
+          rs += locale.translate(value[k].toString());
+        }
+      }
+      return rs;
+    }
+    return '';
   }
 }

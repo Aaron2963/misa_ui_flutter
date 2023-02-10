@@ -1,4 +1,5 @@
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 class ArrayJsonSchema extends JsonSchema {
   final JsonSchema items;
@@ -53,5 +54,15 @@ class ArrayJsonSchema extends JsonSchema {
       disabled: json['disabled'] == true,
       value: json['value'],
     );
+  }
+
+  @override
+  String display(MisaLocale locale, dynamic value) {
+    if (value is! List) return '';
+    if (items.type == SchemaDataType.string ||
+        items.type == SchemaDataType.integer) {
+      return value.join(', ');
+    }
+    return '';
   }
 }

@@ -1,4 +1,5 @@
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 class IntegerJsonSchema extends JsonSchema {
   final int? minimum;
@@ -50,5 +51,11 @@ class IntegerJsonSchema extends JsonSchema {
       disabled: json['disabled'] == true,
       value: json['value'],
     );
+  }
+
+  @override
+  String display(MisaLocale locale, dynamic value) {
+    value = int.tryParse(value.toString()) ?? '';
+    return value;
   }
 }

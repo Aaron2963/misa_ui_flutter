@@ -81,43 +81,53 @@ const Map<_FeatureBarPosition, List<ViewFeature>> _featurePositionMapping = {
 class FeatureBar extends StatelessWidget {
   final ViewType? viewType;
   final List<ViewFeature>? features;
-  final TextDirection direction;
+  final bool alignEnd;
+  final bool isBottom;
+
   const FeatureBar({
     super.key,
     this.viewType,
     this.features,
-    this.direction = TextDirection.ltr,
-  });
+    this.alignEnd = false,
+  }) : isBottom = false;
+
+  const FeatureBar.bottom({
+    super.key,
+    this.viewType,
+    this.features,
+  })  : isBottom = true,
+        alignEnd = false;
 
   @override
   Widget build(BuildContext context) {
+    final TextDirection direction =
+        alignEnd ? TextDirection.rtl : TextDirection.ltr;
     final viewMenuItem = context.watch<BodyStateProvider>().viewMenuItem;
     if (viewMenuItem == null) return const SizedBox();
     ViewType nowViewType = viewType ?? viewMenuItem.viewType;
     List<ViewFeature> nowFeatures = features ?? viewMenuItem.features;
+    List<Widget> actions = [];
+    for (var position in [
+      _FeatureBarPosition.left,
+      _FeatureBarPosition.center,
+      _FeatureBarPosition.right
+    ]) {
+      if (!isBottom && position == _FeatureBarPosition.center) continue;
+      if (isBottom && position != _FeatureBarPosition.center) {
+        actions.add(const SizedBox());
+        continue;
+      }
+      actions.add(_Actions(
+        viewType: nowViewType,
+        position: position,
+        features: nowFeatures,
+        direction: direction,
+      ));
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       textDirection: direction,
-      children: [
-        _Actions(
-          viewType: nowViewType,
-          position: _FeatureBarPosition.left,
-          features: nowFeatures,
-          direction: direction,
-        ),
-        _Actions(
-          viewType: nowViewType,
-          position: _FeatureBarPosition.center,
-          features: nowFeatures,
-          direction: direction,
-        ),
-        _Actions(
-          viewType: nowViewType,
-          position: _FeatureBarPosition.right,
-          features: nowFeatures,
-          direction: direction,
-        ),
-      ],
+      children: actions,
     );
   }
 }

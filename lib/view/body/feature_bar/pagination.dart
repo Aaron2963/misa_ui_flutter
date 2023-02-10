@@ -3,13 +3,12 @@ import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
 
 class PaginationBar extends StatelessWidget {
-
   const PaginationBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final int current = context.watch<BodyStateProvider>().currentPage;
-    final int total = context.watch<BodyStateProvider>().totalPage;
+    final int total = context.watch<BodyStateProvider>().totalPage ?? 1;
     List<String> numbers = [];
     int mod = -2;
     while (numbers.length < 5) {
@@ -81,7 +80,11 @@ class _PaginationBarCell extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = Theme.of(context).textTheme.bodyMedium!.fontSize! * 2.5;
     Widget display = child;
-    VoidCallback? onTap = () {};
+    VoidCallback? onTap = () {
+      final int? v = int.tryParse(value);
+      if (v == null) return;
+      context.read<BodyStateProvider>().setCurrentPage(v);
+    };
     if (isActive ||
         value == null ||
         (isFirst && value == 'prev') ||

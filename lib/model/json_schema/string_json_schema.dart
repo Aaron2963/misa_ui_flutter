@@ -1,4 +1,5 @@
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 enum SchemaFormat { date, time, datetime, email, uri, json }
 
@@ -7,6 +8,8 @@ class StringJsonSchema extends JsonSchema {
   final int? minLength;
   final int? maxLength;
   final SchemaFormat? format;
+  final List<String>? enumValues;
+  final List<String>? texts;
 
   StringJsonSchema({
     required super.key,
@@ -14,6 +17,8 @@ class StringJsonSchema extends JsonSchema {
     this.minLength,
     this.maxLength,
     this.format,
+    this.enumValues,
+    this.texts,
     super.dollarId,
     super.dollarRef,
     super.dollarSchema,
@@ -57,6 +62,27 @@ class StringJsonSchema extends JsonSchema {
       readOnly: json['readOnly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'],
+      enumValues: (json['enum'] as List<dynamic>?)?.cast<String>(),
+      texts: (json['texts'] as List<dynamic>?)?.cast<String>(),
     );
+  }
+
+  @override
+  String display(MisaLocale locale, dynamic value) {
+    if (texts != null && enumValues != null && enumValues!.contains(value)) {
+      return locale.translate(texts![enumValues!.indexOf(value)]);
+    }
+    if (['date', 'datetime'].contains(component)) {
+      DateTime dt = DateTime.parse(value);
+      if ((dt.year == 1970 || dt.year == 1000) &&
+          dt.month == 1 &&
+          dt.day == 1) {
+        return '';
+      }
+      if (component == 'date') {
+        return value.split(' ')[0];
+      }
+    }
+    return value.toString();
   }
 }
