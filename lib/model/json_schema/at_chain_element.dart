@@ -7,26 +7,31 @@ class AtChainElement extends ObjectJsonSchema {
     required String titleFieldName,
     required String atTable,
     required String atId,
+    String key = 'atChain',
   }) : super(
+          key: key,
           atId: atId,
           atTable: atTable,
           properties: {
-            atId: StringJsonSchema(atColumn: atId),
-            titleFieldName: StringJsonSchema(purpose: {SchemaPurpose.caption}),
+            atId: StringJsonSchema(key: atId, atColumn: atId),
+            titleFieldName: StringJsonSchema(
+              key: titleFieldName,
+              purpose: {SchemaPurpose.caption},
+            ),
           },
         );
 
   factory AtChainElement.fromJson(Map<String, dynamic> json) {
     String title = '';
-      for (String k in json['properties'].keys) {
-        if (k == json['@id']) continue;
-        title = k;
-        break;
-      }
-      return AtChainElement(
-        titleFieldName: title,
-        atTable: json['@table'],
-        atId: json['@id'],
-      );
+    for (String k in json['properties'].keys) {
+      if (k == json['@id']) continue;
+      title = k;
+      break;
+    }
+    return AtChainElement(
+      titleFieldName: title,
+      atTable: json['@table'],
+      atId: json['@id'],
+    );
   }
 }

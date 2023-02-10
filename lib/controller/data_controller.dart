@@ -4,12 +4,13 @@ import 'package:misa_ui_flutter/model/query_filter.dart';
 
 class DataController {
   final String tableName;
+  QueryFilter? filter;
 
   DataController(this.tableName);
 
   String get resourceName => tableName.toLowerCase().replaceAll(':', '.');
 
-  Future<DataPayload> select(QueryFilter filter, int offset, int limit) {
+  Future<DataPayload> select(int offset, int limit) {
     return Future.delayed(const Duration(seconds: 1), () {
       return DataPayload.fromJson(
         json: mockData,

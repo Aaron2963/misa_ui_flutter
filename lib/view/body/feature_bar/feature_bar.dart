@@ -19,6 +19,7 @@ const Map<ViewType, Set<ViewFeature>> legalFeaturesByViewType = {
     ViewFeature.chart,
     ViewFeature.print,
     ViewFeature.download,
+    ViewFeature.pagination,
   },
   ViewType.form: {
     ViewFeature.save,
@@ -35,6 +36,7 @@ const Map<ViewType, Set<ViewFeature>> legalFeaturesByViewType = {
     ViewFeature.chart,
     ViewFeature.print,
     ViewFeature.download,
+    ViewFeature.pagination,
   },
   ViewType.detail: {
     ViewFeature.edit,
@@ -51,6 +53,7 @@ const Map<ViewType, Set<ViewFeature>> legalFeaturesByViewType = {
     ViewFeature.selectAll,
     ViewFeature.print,
     ViewFeature.download,
+    ViewFeature.pagination,
   },
 };
 

@@ -10,6 +10,7 @@ enum SchemaDataType { string, integer, boolean, object, array }
 enum SchemaPurpose { header, option, caption, quickact, timeline }
 
 class JsonSchema {
+  final String key;
   final SchemaDataType type;
   final String? dollarId;
   final String? dollarRef;
@@ -30,6 +31,7 @@ class JsonSchema {
   final dynamic value;
 
   JsonSchema({
+    required this.key,
     required this.type,
     this.dollarId,
     this.dollarRef,
@@ -50,19 +52,19 @@ class JsonSchema {
     this.value,
   });
 
-  factory JsonSchema.fromJson(Map<String, dynamic> json) {
+  factory JsonSchema.fromJson(String key, Map<String, dynamic> json) {
     final type = json['type'] as String;
     switch (type) {
       case 'string':
-        return StringJsonSchema.fromJson(json);
+        return StringJsonSchema.fromJson(key, json);
       case 'integer':
-        return IntegerJsonSchema.fromJson(json);
+        return IntegerJsonSchema.fromJson(key, json);
       case 'boolean':
-        return BooleanJsonSchema.fromJson(json);
+        return BooleanJsonSchema.fromJson(key, json);
       case 'object':
-        return ObjectJsonSchema.fromJson(json);
+        return ObjectJsonSchema.fromJson(key, json);
       case 'array':
-        return ArrayJsonSchema.fromJson(json);
+        return ArrayJsonSchema.fromJson(key, json);
       default:
         throw Exception('Unknown type: $type');
     }

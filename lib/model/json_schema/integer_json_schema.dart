@@ -5,6 +5,7 @@ class IntegerJsonSchema extends JsonSchema {
   final int? maximum;
 
   IntegerJsonSchema({
+    required super.key,
     this.minimum,
     this.maximum,
     super.dollarId,
@@ -26,8 +27,9 @@ class IntegerJsonSchema extends JsonSchema {
     super.value,
   }) : super(type: SchemaDataType.integer);
 
-  factory IntegerJsonSchema.fromJson(Map<String, dynamic> json) {
+  factory IntegerJsonSchema.fromJson(String key, Map<String, dynamic> json) {
     return IntegerJsonSchema(
+      key: key,
       minimum: json['minimum'] as int?,
       maximum: json['maximum'] as int?,
       dollarId: json['\$id'] as String?,

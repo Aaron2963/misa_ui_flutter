@@ -24,7 +24,7 @@ class _ViewMenuItemState extends State<ViewMenuItem> {
     return InkWell(
       onTap: () => setState(() {
         context.read<MainMenuStateProvider>().setActiveKey(widget.key, item);
-        context.read<BodyStateProvider>().set(
+        context.read<BodyStateProvider>().changeViewMenu(
               pageSchema: item.pageSchema,
               viewMenuItem: item,
             );

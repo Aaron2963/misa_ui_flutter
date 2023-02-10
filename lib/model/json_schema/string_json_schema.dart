@@ -9,6 +9,7 @@ class StringJsonSchema extends JsonSchema {
   final SchemaFormat? format;
 
   StringJsonSchema({
+    required super.key,
     this.pattern,
     this.minLength,
     this.maxLength,
@@ -32,8 +33,9 @@ class StringJsonSchema extends JsonSchema {
     super.value,
   }) : super(type: SchemaDataType.string);
 
-  factory StringJsonSchema.fromJson(Map<String, dynamic> json) {
+  factory StringJsonSchema.fromJson(String key, Map<String, dynamic> json) {
     return StringJsonSchema(
+      key: key,
       pattern: json['pattern'] as String?,
       minLength: json['minLength'] as int?,
       maxLength: json['maxLength'] as int?,

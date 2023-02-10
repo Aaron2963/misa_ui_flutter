@@ -6,6 +6,7 @@ class ArrayJsonSchema extends JsonSchema {
   final int? maxLength;
 
   ArrayJsonSchema({
+    required super.key,
     required this.items,
     this.minLength,
     this.maxLength,
@@ -28,9 +29,10 @@ class ArrayJsonSchema extends JsonSchema {
     super.value,
   }) : super(type: SchemaDataType.array);
 
-  factory ArrayJsonSchema.fromJson(Map<String, dynamic> json) {
+  factory ArrayJsonSchema.fromJson(String key, Map<String, dynamic> json) {
     return ArrayJsonSchema(
-      items: JsonSchema.fromJson(json['items']),
+      key: key,
+      items: JsonSchema.fromJson('$key[]', json['items']),
       minLength: json['minLength'] as int?,
       maxLength: json['maxLength'] as int?,
       dollarId: json['\$id'] as String?,

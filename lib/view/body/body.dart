@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:misa_ui_flutter/controller/data_controller.dart';
+import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
+import 'package:misa_ui_flutter/model/query_filter.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/feature_bar.dart';
 import 'package:misa_ui_flutter/view/body/page_body/page_body.dart';
@@ -48,16 +51,40 @@ class BodyStateProvider extends ChangeNotifier {
   ViewMenuItem? viewMenuItem;
   int currentPage = 1;
   int totalPage = 1;
+  DataPayload? payload;
+  DataController? _dataController;
 
-  void set({PageSchema? pageSchema, ViewMenuItem? viewMenuItem}) {
+  void changeViewMenu({PageSchema? pageSchema, ViewMenuItem? viewMenuItem}) {
     this.pageSchema = pageSchema;
     this.viewMenuItem = viewMenuItem;
+    if (pageSchema != null && pageSchema.atTable != null) {
+      _dataController = DataController(pageSchema.atTable!);
+    } else {
+      _dataController = null;
+    }
     notifyListeners();
   }
-  
-  void setCurrentPage(int page, {int total = 1}) {
+
+  void setQueryFilter(QueryFilter? filter) {
+    if (_dataController != null) {
+      _dataController!.filter = filter;
+    }
+    notifyListeners();
+  }
+
+  Future<void> setCurrentPage(
+    int page, {
+    int total = 1,
+    int limit = 10,
+  }) async {
     currentPage = page;
     totalPage = total;
+    if (_dataController != null) {
+      payload = await _dataController!.select((page - 1) * limit, limit);
+      currentPage = payload!.page;
+      totalPage = (payload!.total / limit).ceil();
+    }
     notifyListeners();
+    return;
   }
 }

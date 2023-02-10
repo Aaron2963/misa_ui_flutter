@@ -34,7 +34,7 @@ class PageSchema extends ObjectJsonSchema {
     super.readOnly,
     super.disabled,
     super.value,
-  });
+  }) : super(key: 'pageRoot');
 
   factory PageSchema.fromJson(Map<String, dynamic> json) {
     Map<String, JsonSchema> properties = {};
@@ -45,7 +45,30 @@ class PageSchema extends ObjectJsonSchema {
     List<JsonSchema> order = [];
     List<JsonSchema> filter = [];
     for (var key in json['properties'].keys) {
-      properties[key.toString()] = JsonSchema.fromJson(json['properties'][key]);
+      Map<String, dynamic> prop =
+          json['properties'][key] as Map<String, dynamic>;
+      properties[key.toString()] = JsonSchema.fromJson(key, prop);
+      if (prop['purpose'] != null) {
+        if (prop['purpose'] is! List) {
+          prop['purpose'] = [prop['purpose']];
+        }
+        for (var purpose in prop['purpose']) {
+          switch (purpose) {
+            case 'header':
+              headers.add(properties[key.toString()]!);
+              break;
+            case 'option':
+              options.add(properties[key.toString()]!);
+              break;
+            case 'order':
+              order.add(properties[key.toString()]!);
+              break;
+            case 'filter':
+              filter.add(properties[key.toString()]!);
+              break;
+          }
+        }
+      }
     }
     if (json['required'] != null) {
       for (var key in json['required']) {
@@ -87,10 +110,10 @@ class PageSchema extends ObjectJsonSchema {
       properties: properties,
       required: required,
       dependentRequired: dependentRequired,
-      headers: headers,
-      options: options,
-      order: order,
-      filter: filter,
+      headers: headers.toSet().toList(),
+      options: options.toSet().toList(),
+      order: order.toSet().toList(),
+      filter: filter.toSet().toList(),
       render: json['render'] != null
           ? (json['render'] as List).map((e) => e.toString()).toList()
           : null,

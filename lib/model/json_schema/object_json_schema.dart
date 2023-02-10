@@ -8,6 +8,7 @@ class ObjectJsonSchema extends JsonSchema {
   final List? layout;
 
   ObjectJsonSchema({
+    required super.key,
     required this.properties,
     this.required,
     this.dependentRequired,
@@ -32,12 +33,12 @@ class ObjectJsonSchema extends JsonSchema {
     super.value,
   }) : super(type: SchemaDataType.object);
 
-  factory ObjectJsonSchema.fromJson(Map<String, dynamic> json) {
+  factory ObjectJsonSchema.fromJson(String key, Map<String, dynamic> json) {
     Map<String, JsonSchema> properties = {};
     Set<JsonSchema> required = {};
     Map<String, Set<JsonSchema>> dependentRequired = {};
-    for (var key in json['properties'].keys) {
-      properties[key.toString()] = JsonSchema.fromJson(json['properties'][key]);
+    for (var k in json['properties'].keys) {
+      properties[k.toString()] = JsonSchema.fromJson(k, json['properties'][k]);
     }
     if (json['required'] != null) {
       for (var key in json['required']) {
@@ -55,6 +56,7 @@ class ObjectJsonSchema extends JsonSchema {
     }
 
     return ObjectJsonSchema(
+      key: key,
       properties: properties,
       required: required,
       dependentRequired: dependentRequired,
