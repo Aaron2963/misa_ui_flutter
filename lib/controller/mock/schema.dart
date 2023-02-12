@@ -27,7 +27,8 @@ final Map<String, dynamic> mockSchema = {
       "type": "string",
       "title": "Textbook Type",
       "component": "editbox",
-      "readonly": true
+      "readonly": true,
+      "purpose": ["header"]
     },
     "TextbookTYPID": {
       "type": "string",
@@ -60,8 +61,18 @@ final Map<String, dynamic> mockSchema = {
       "title": "Description",
       "component": "editbox"
     },
-    "Keyword": {"type": "string", "title": "Keyword", "component": "editbox"},
-    "Author": {"type": "string", "title": "Author", "component": "editbox"},
+    "Keyword": {
+      "type": "string",
+      "title": "Keyword",
+      "component": "editbox",
+      "purpose": ["header"]
+    },
+    "Author": {
+      "type": "string",
+      "title": "Author",
+      "component": "editbox",
+      "purpose": ["header"]
+    },
     "Translator": {
       "type": "string",
       "title": "Translator",

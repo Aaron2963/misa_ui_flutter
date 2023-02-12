@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:misa_ui_flutter/model/data_payload.dart';
+import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +9,8 @@ class PaginationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MisaLocale locale = context.watch<MisaLocale>();
+    final DataPayload? payload = context.watch<BodyStateProvider>().payload;
     final int current = context.watch<BodyStateProvider>().currentPage;
     final int total = context.watch<BodyStateProvider>().totalPage ?? 1;
     List<String> numbers = [];
@@ -22,40 +26,46 @@ class PaginationBar extends StatelessWidget {
       numbers.add((current + mod).toString());
       mod++;
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Column(
       children: [
-        const _PaginationBarCell(
-          isActive: false,
-          isFirst: true,
-          value: 'prev',
-          child: Icon(Icons.keyboard_double_arrow_left),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _PaginationBarCell(
+              isActive: false,
+              isFirst: true,
+              value: 'prev',
+              child: Icon(Icons.keyboard_double_arrow_left),
+            ),
+            numbers.first != '1'
+                ? const _PaginationBarCell(
+                    isActive: false,
+                    value: null,
+                    child: Icon(Icons.more_horiz, color: Colors.black26),
+                  )
+                : const SizedBox(),
+            ...numbers.map((number) => _PaginationBarCell(
+                  value: number,
+                  isActive: number == current.toString(),
+                  child: Text(number),
+                )),
+            numbers.last != total.toString()
+                ? const _PaginationBarCell(
+                    value: null,
+                    isActive: false,
+                    child: Icon(Icons.more_horiz, color: Colors.black26),
+                  )
+                : const SizedBox(),
+            const _PaginationBarCell(
+              isActive: false,
+              isLast: true,
+              value: 'next',
+              child: Icon(Icons.keyboard_double_arrow_right),
+            ),
+          ],
         ),
-        numbers.first != '1'
-            ? const _PaginationBarCell(
-                isActive: false,
-                value: null,
-                child: Icon(Icons.more_horiz, color: Colors.black26),
-              )
-            : const SizedBox(),
-        ...numbers.map((number) => _PaginationBarCell(
-              value: number,
-              isActive: number == current.toString(),
-              child: Text(number),
-            )),
-        numbers.last != total.toString()
-            ? const _PaginationBarCell(
-                value: null,
-                isActive: false,
-                child: Icon(Icons.more_horiz, color: Colors.black26),
-              )
-            : const SizedBox(),
-        const _PaginationBarCell(
-          isActive: false,
-          isLast: true,
-          value: 'next',
-          child: Icon(Icons.keyboard_double_arrow_right),
-        ),
+        Text(locale.translate(
+            'Total %s records', payload?.total.toString() ?? '--')),
       ],
     );
   }
@@ -78,12 +88,13 @@ class _PaginationBarCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bodyState = context.watch<BodyStateProvider>();
     double width = Theme.of(context).textTheme.bodyMedium!.fontSize! * 2.5;
     Widget display = child;
     VoidCallback? onTap = () {
       final int? v = int.tryParse(value);
       if (v == null) return;
-      context.read<BodyStateProvider>().setCurrentPage(v);
+      bodyState.setCurrentPage(v);
     };
     if (isActive ||
         value == null ||
@@ -92,14 +103,20 @@ class _PaginationBarCell extends StatelessWidget {
       onTap = null;
     }
     if (value == 'prev') {
+      if (bodyState.currentPage > 1) {
+        onTap = () => bodyState.setCurrentPage(bodyState.currentPage - 1);
+      }
       display = Icon(
-        Icons.keyboard_double_arrow_left,
+        Icons.keyboard_arrow_left,
         color: onTap == null ? Colors.black12 : Colors.black,
       );
     }
     if (value == 'next') {
+      if (bodyState.currentPage < bodyState.totalPage!) {
+        onTap = () => bodyState.setCurrentPage(bodyState.currentPage + 1);
+      }
       display = Icon(
-        Icons.keyboard_double_arrow_right,
+        Icons.keyboard_arrow_right,
         color: onTap == null ? Colors.black12 : Colors.black,
       );
     }

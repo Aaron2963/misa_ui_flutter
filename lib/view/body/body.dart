@@ -39,7 +39,10 @@ class _BodyState extends State<Body> {
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const Divider(),
         const FeatureBar(),
-        const Expanded(child: PageBody()),
+        const Expanded(child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: PageBody(),
+        )),
         const FeatureBar.bottom(),
       ],
     );
@@ -74,12 +77,12 @@ class BodyStateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setCurrentPage(int page) async {
+  Future<void> setCurrentPage(int page, {bool notifyBeforeAwait = false}) async {
     if (totalPage != null && page > totalPage!) return;
     currentPage = page;
     if (_dataController != null) {
       currentPage = page;
-      notifyListeners();
+      if (notifyBeforeAwait) notifyListeners();
       payload = await _dataController!.select((page - 1) * limit, limit);
       totalPage = (payload!.total / limit).ceil();
       notifyListeners();

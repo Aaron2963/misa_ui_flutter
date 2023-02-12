@@ -20,10 +20,14 @@ class MisaLocale extends ChangeNotifier {
     return;
   }
 
-  String translate(String key) {
+  String translate(String key, [String? substring]) {
+    String result = dictionary[key] ?? key;
+    if (substring != null) {
+      result = result.replaceAll('%s', substring);
+    }
     if (!dictionary.containsKey(key)) {
       missingKeys.add(key);
     }
-    return dictionary[key] ?? key;
+    return result;
   }
 }

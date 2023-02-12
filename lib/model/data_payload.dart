@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:misa_ui_flutter/model/query_filter.dart';
 
 class DataPayload {
@@ -6,16 +8,21 @@ class DataPayload {
   final int page;
   final String? redirectUrl;
   final QueryFilter? filter;
-  final List<Map<String, dynamic>> data;
+  final String _dataJson;
+
+  List<Map<String, dynamic>> get data {
+    List dataList = jsonDecode(_dataJson) as List;
+    return dataList.map((e) => e as Map<String, dynamic>).toList();
+  }
 
   DataPayload({
     required this.total,
     required this.offset,
     required this.page,
-    this.data = const [],
+    required List<Map<String, dynamic>> data,
     this.redirectUrl,
     this.filter,
-  });
+  }) : _dataJson = jsonEncode(data);
 
   factory DataPayload.fromJson({
     required Map<String, dynamic> json,

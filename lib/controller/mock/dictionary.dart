@@ -570,5 +570,7 @@ final Map<String, String> mockDictionary = {
   "Employee Name": "姓名",
   "Employee NO.": "員工編號",
   "Member NO.": "會員編號",
-  "Account Name (Email)": "帳號 (Email)"
+  "Account Name (Email)": "帳號 (Email)",
+  "Sort By %s": "依%s排序",
+  "Total %s records": "共%s筆資料",
 };

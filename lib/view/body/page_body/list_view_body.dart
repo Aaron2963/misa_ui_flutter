@@ -17,24 +17,38 @@ class _ListViewBodyState extends State<ListViewBody> {
   final int limit = 10;
   int currentPage = 0;
   Set<String> selected = {};
+  int? sortColumnIndex;
 
-  void changePage(BuildContext context, int page) {
+  void changePage(BuildContext context, int page, {bool isInit = false}) {
     if (page == currentPage) return;
     currentPage = page;
-    context.read<BodyStateProvider>().setCurrentPage(page);
+    context
+        .read<BodyStateProvider>()
+        .setCurrentPage(page, notifyBeforeAwait: !isInit);
   }
 
-  DataColumn _buildColumn(dynamic title, JsonSchema schema) {
+  DataColumn _buildColumn({
+    required dynamic title,
+    required JsonSchema schema,
+    required int columnIndex,
+    String? tooltip,
+  }) {
     return DataColumn(
       numeric:
           schema.type == SchemaDataType.integer || schema.component == 'number',
-      label: Expanded(
-        child: Text(title.toString()),
+      tooltip: tooltip,
+      label: Row(
+        children: [
+          Text(title.toString()),
+          if (sortColumnIndex != null && sortColumnIndex == columnIndex)
+            const Icon(Icons.arrow_drop_down, size: 18),
+        ],
       ),
+      onSort: (col, asc) => setState(() => sortColumnIndex = col),
     );
   }
 
-  DataCell _buildCell(dynamic value, VoidCallback onTap) {
+  DataCell _buildCell(dynamic value, [VoidCallback? onTap]) {
     return DataCell(
       Text(value.toString()),
       onTap: onTap,
@@ -43,7 +57,7 @@ class _ListViewBodyState extends State<ListViewBody> {
 
   @override
   void initState() {
-    changePage(context, 1);
+    changePage(context, 1, isInit: true);
     super.initState();
   }
 
@@ -56,21 +70,56 @@ class _ListViewBodyState extends State<ListViewBody> {
     if (payload == null || pageSchema == null) {
       return const Center(child: Text("No data"));
     }
+    final List<Map<String, dynamic>> data = payload.data;
+    if (sortColumnIndex != null) {
+      data.sort((b, a) {
+        final JsonSchema schema = pageSchema.headers![sortColumnIndex!];
+        final dynamic aValue = a[schema.key];
+        final dynamic bValue = b[schema.key];
+        if (aValue is int && bValue is int) {
+          return aValue.compareTo(bValue);
+        }
+        if (aValue is String && bValue is String) {
+          return aValue.compareTo(bValue);
+        }
+        return 0;
+      });
+    }
     return SizedBox(
       width: double.infinity,
       child: DataTable(
         showCheckboxColumn: true,
-        columns: pageSchema.headers!
-            .map((JsonSchema e) =>
-                _buildColumn(locale.translate(e.title ?? e.key), e))
-            .toList(),
-        rows: List<DataRow>.generate(payload.data.length, (int i) {
-          final Map<String, dynamic> d = payload.data[i];
+        columns: [
+          for (int i = 0; i < pageSchema.headers!.length; i++)
+            _buildColumn(
+              title: locale.translate(
+                  pageSchema.headers![i].title ?? pageSchema.headers![i].key),
+              schema: pageSchema.headers![i],
+              columnIndex: i,
+              tooltip: locale.translate(
+                'Sort By %s',
+                locale.translate(
+                    pageSchema.headers![i].title ?? pageSchema.headers![i].key),
+              ),
+            ),
+          const DataColumn(
+              label: Text(
+                '操作',
+                style: TextStyle(color: Colors.black54),
+              ),
+              numeric: true,
+              onSort: null),
+        ],
+        rows: List<DataRow>.generate(data.length, (int i) {
+          final Map<String, dynamic> d = data[i];
           return DataRow(
             color: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
                 if (states.contains(MaterialState.selected)) {
-                  return Theme.of(context).colorScheme.primary.withOpacity(0.08);
+                  return Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.08);
                 }
                 if (i.isEven) {
                   return Colors.grey.withOpacity(0.2);
@@ -86,15 +135,32 @@ class _ListViewBodyState extends State<ListViewBody> {
                 selected.remove(d[pageSchema.atId]);
               }
             }),
-            cells: pageSchema.headers!.map((JsonSchema e) {
-              return _buildCell(
-                e.display(locale, d[e.key] ?? ''),
-                () {
-                  //TODO: open detail
-                  print('open detail: ${d[pageSchema.atId]}');
-                },
-              );
-            }).toList(),
+            cells: [
+              ...pageSchema.headers!.map((JsonSchema e) {
+                return _buildCell(e.display(locale, d[e.key] ?? ''));
+              }).toList(),
+              DataCell(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.info_outline, size: 18.0),
+                      tooltip: locale.translate('Detail'),
+                      padding: EdgeInsets.zero,
+                      onPressed: () =>
+                          print("open detail: ${d[pageSchema.atId]}"),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 18.0),
+                      tooltip: locale.translate('Edit'),
+                      padding: EdgeInsets.zero,
+                      onPressed: () =>
+                          print("edit data: ${d[pageSchema.atId]}"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         }),
       ),
