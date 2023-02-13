@@ -112,7 +112,7 @@ class _PaginationBarCell extends StatelessWidget {
       );
     }
     if (value == 'next') {
-      if (bodyState.currentPage < bodyState.totalPage!) {
+      if (bodyState.currentPage < (bodyState.totalPage ?? 1)) {
         onTap = () => bodyState.setCurrentPage(bodyState.currentPage + 1);
       }
       display = Icon(

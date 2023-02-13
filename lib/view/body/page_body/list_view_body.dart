@@ -1,10 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
+import 'package:misa_ui_flutter/settings/view_settings.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
+
+const _cellWidth = 100.0;
+const _operationColumnWidth = 80.0;
+const _columnSpacing = 12.0;
 
 class ListViewBody extends StatefulWidget {
   const ListViewBody({super.key});
@@ -48,9 +55,18 @@ class _ListViewBodyState extends State<ListViewBody> {
     );
   }
 
-  DataCell _buildCell(dynamic value, [VoidCallback? onTap]) {
+  DataCell _buildCell(dynamic value, {VoidCallback? onTap}) {
     return DataCell(
-      Text(value.toString()),
+      SizedBox(
+        width: _cellWidth,
+        child: Tooltip(
+          message: value.toString(),
+          child: Text(
+            value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
       onTap: onTap,
     );
   }
@@ -63,13 +79,20 @@ class _ListViewBodyState extends State<ListViewBody> {
 
   @override
   Widget build(BuildContext context) {
+    final tableWidthLimit = MediaQuery.of(context).size.width -
+        ViewSettings().sideBarWidth -
+        _operationColumnWidth -
+        30 - // checkbox column
+        32; //main frame padding
     final MisaLocale locale = context.watch<MisaLocale>();
     final DataPayload? payload = context.watch<BodyStateProvider>().payload;
     final PageSchema? pageSchema =
         context.watch<BodyStateProvider>().pageSchema;
+    // 無資料時顯示
     if (payload == null || pageSchema == null) {
       return const Center(child: Text("No data"));
     }
+    // 排序資料
     final List<Map<String, dynamic>> data = payload.data;
     if (sortColumnIndex != null) {
       data.sort((b, a) {
@@ -85,62 +108,68 @@ class _ListViewBodyState extends State<ListViewBody> {
         return 0;
       });
     }
-    return SizedBox(
-      width: double.infinity,
-      child: DataTable(
-        showCheckboxColumn: true,
-        columns: [
-          for (int i = 0; i < pageSchema.headers!.length; i++)
-            _buildColumn(
-              title: locale.translate(
-                  pageSchema.headers![i].title ?? pageSchema.headers![i].key),
-              schema: pageSchema.headers![i],
-              columnIndex: i,
-              tooltip: locale.translate(
-                'Sort By %s',
-                locale.translate(
-                    pageSchema.headers![i].title ?? pageSchema.headers![i].key),
-              ),
+    // 計算表格寬度
+    int headersLength =
+        min(pageSchema.headers!.length, (tableWidthLimit / (_cellWidth + _columnSpacing * 2)).floor());
+    List<JsonSchema> headers = List.generate(
+      headersLength,
+      (index) => pageSchema.headers![index],
+    );
+    print('tableWidthLimit: $tableWidthLimit');
+    print('headersLength: $headersLength');
+
+    return DataTable(
+      showCheckboxColumn: true,
+      columnSpacing: _columnSpacing,
+      columns: [
+        for (int i = 0; i < headers.length; i++)
+          _buildColumn(
+            title: locale.translate(headers[i].title ?? headers[i].key),
+            schema: headers[i],
+            columnIndex: i,
+            tooltip: locale.translate(
+              'Sort By %s',
+              locale.translate(headers[i].title ?? headers[i].key),
             ),
-          const DataColumn(
-              label: Text(
-                '操作',
-                style: TextStyle(color: Colors.black54),
-              ),
-              numeric: true,
-              onSort: null),
-        ],
-        rows: List<DataRow>.generate(data.length, (int i) {
-          final Map<String, dynamic> d = data[i];
-          return DataRow(
-            color: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-                if (states.contains(MaterialState.selected)) {
-                  return Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withOpacity(0.08);
-                }
-                if (i.isEven) {
-                  return Colors.grey.withOpacity(0.2);
-                }
-                return null;
-              },
+          ),
+        const DataColumn(
+            label: Text(
+              '操作',
+              style: TextStyle(color: Colors.black54),
             ),
-            selected: selected.contains(d[pageSchema.atId]),
-            onSelectChanged: (value) => setState(() {
-              if (value == true) {
-                selected.add(d[pageSchema.atId]);
-              } else {
-                selected.remove(d[pageSchema.atId]);
+            numeric: true,
+            onSort: null),
+      ],
+      rows: List<DataRow>.generate(data.length, (int i) {
+        final Map<String, dynamic> d = data[i];
+        return DataRow(
+          color: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.selected)) {
+                return Theme.of(context).colorScheme.primary.withOpacity(0.08);
               }
-            }),
-            cells: [
-              ...pageSchema.headers!.map((JsonSchema e) {
-                return _buildCell(e.display(locale, d[e.key] ?? ''));
-              }).toList(),
-              DataCell(
-                Row(
+              if (i.isEven) {
+                return Colors.grey.withOpacity(0.2);
+              }
+              return null;
+            },
+          ),
+          selected: selected.contains(d[pageSchema.atId]),
+          onSelectChanged: (value) => setState(() {
+            if (value == true) {
+              selected.add(d[pageSchema.atId]);
+            } else {
+              selected.remove(d[pageSchema.atId]);
+            }
+          }),
+          cells: [
+            ...headers.map((JsonSchema e) {
+              return _buildCell(e.display(locale, d[e.key] ?? ''));
+            }).toList(),
+            DataCell(
+              SizedBox(
+                width: _operationColumnWidth,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
@@ -160,10 +189,10 @@ class _ListViewBodyState extends State<ListViewBody> {
                   ],
                 ),
               ),
-            ],
-          );
-        }),
-      ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
