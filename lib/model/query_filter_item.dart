@@ -4,7 +4,7 @@ enum QueryFilterConj { all, not, any }
 
 enum QueryFilterOp { equal, contain, range }
 
-final Set<String> _dateComponents = {
+final Set<String> dateComponents = {
   "datetime",
   "date",
   "week",
@@ -33,7 +33,7 @@ class QueryFilterItem {
     QueryFilterItemOperator operator;
     if ((schema.type == SchemaDataType.integer ||
             schema.component == 'number') ||
-        _dateComponents.contains(schema.component)) {
+        dateComponents.contains(schema.component)) {
       operator = QueryFilterItemOperator(
           conj: QueryFilterConj.all, op: QueryFilterOp.equal);
     } else {
@@ -50,7 +50,7 @@ class QueryFilterItem {
   Set<QueryFilterItemOperator> get operators {
     if ((schema.type == SchemaDataType.integer ||
             schema.component == 'number') ||
-        _dateComponents.contains(schema.component)) {
+        dateComponents.contains(schema.component)) {
       return {
         QueryFilterItemOperator(
             conj: QueryFilterConj.all, op: QueryFilterOp.equal),

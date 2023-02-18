@@ -244,13 +244,74 @@ class _FilterConditionContent extends StatefulWidget {
 }
 
 class _FilterConditionContentState extends State<_FilterConditionContent> {
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
   Widget buildField([int index = 1]) {
+    String initialValue =
+        (index == 1 ? widget.filterItem.value1 : widget.filterItem.value2) ?? '';
+    TextEditingController controller = index == 1 ? _controller1 : _controller2;
+    controller.text = initialValue;
+    //值的型別是布林值
+    if (widget.filterItem.schema.type == SchemaDataType.boolean) {
+      return DropdownButtonFormField<bool>(
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 8),
+        ),
+        items: const [
+          DropdownMenuItem<bool>(
+            value: true,
+            child: Text('是'),
+          ),
+          DropdownMenuItem<bool>(
+            value: false,
+            child: Text('否'),
+          ),
+        ],
+        value: widget.filterItem.value1 == 'true',
+        onChanged: (value) {
+          setState(() {
+            widget.filterItem.value1 = value.toString();
+          });
+        },
+      );
+    }
+    //值的格式是日期
+    if (dateComponents.contains(widget.filterItem.schema.component)) {
+      final locale = context.watch<MisaLocale>();
+      return TextFormField(
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 8),
+        ),
+        controller: controller,
+        onTap: () async {
+          final DateTime? picked = await showDatePicker(
+            context: context,
+            initialDate:
+                DateTime.tryParse(initialValue) ?? DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime(2200),
+            helpText: locale.translate(widget.filterItem.schema.title ?? widget.filterItem.schema.key),
+          );
+          if (picked != null) {
+            setState(() {
+              String pickedStr = picked.toString().substring(0, 10);
+              if (index == 1) {
+                widget.filterItem.value1 = pickedStr;
+                _controller1.text = pickedStr;
+              } else {
+                widget.filterItem.value2 = pickedStr;
+                _controller2.text = pickedStr;
+              }
+            });
+          }
+        },
+      );
+    }
     return TextFormField(
       decoration: const InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 8),
       ),
-      initialValue:
-          index == 1 ? widget.filterItem.value1 : widget.filterItem.value2,
+      controller: controller,
       onChanged: (value) {
         setState(() {
           if (index == 1) {
