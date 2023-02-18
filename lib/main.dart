@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
 import 'package:misa_ui_flutter/settings/view_settings.dart';
 import 'package:misa_ui_flutter/view/main_menu/main_menu.dart';
 import 'package:misa_ui_flutter/view/top_navigation_bar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
@@ -30,6 +32,17 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('zh', 'TW'),
+            ],
+            locale: context.watch<MisaLocale>().locale,
             home: const MainFrame(),
           );
         });
@@ -43,8 +56,7 @@ class MainFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewSettings = ViewSettings();
     return Scaffold(
-      appBar: TopNavigationBar(
-          context.watch<MisaLocale>().translate('_SiteDisplayName')),
+      appBar: TopNavigationBar(AppLocalizations.of(context)!.siteDisplayName),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           return Row(

@@ -1,0 +1,23 @@
+{
+  "siteDisplayName": "MISA Resource Management",
+  "totalRecords": "Total records: {num}",
+  "@totalRecords": {
+    "description": "Total records",
+    "placeholders": {
+      "num": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "sortBy": "Sort by {column}",
+  "@sortBy": {
+    "description": "Sort by",
+    "placeholders": {
+      "column": {
+        "type": "String",
+        "example": "Name"
+      }
+    }
+  }
+}
