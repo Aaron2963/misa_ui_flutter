@@ -115,8 +115,6 @@ class _ListViewBodyState extends State<ListViewBody> {
       headersLength,
       (index) => pageSchema.headers![index],
     );
-    print('tableWidthLimit: $tableWidthLimit');
-    print('headersLength: $headersLength');
 
     return DataTable(
       showCheckboxColumn: true,

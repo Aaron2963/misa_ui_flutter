@@ -573,4 +573,10 @@ final Map<String, String> mockDictionary = {
   "Account Name (Email)": "帳號 (Email)",
   "Sort By %s": "依%s排序",
   "Total %s records": "共%s筆資料",
+  "all equal": "等於",
+  "not equal": "不等於",
+  "all contain": "包含",
+  "not contain": "不包含",
+  "all range": "介於",
+  "not range": "不介於",
 };

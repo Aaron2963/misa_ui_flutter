@@ -147,4 +147,9 @@ class PageSchema extends ObjectJsonSchema {
       filter: [],
     );
   }
+
+  List<JsonSchema>? get visibleFilter {
+    return filter?.where((f) => f.formOnly != true && f.component != 'hidden')
+        .toList();
+  }
 }

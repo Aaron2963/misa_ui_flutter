@@ -1,87 +1,53 @@
-
-enum QueryFilterConj { all, not, any }
-
-enum QueryFilterOp { equal, contain, range }
+import 'package:misa_ui_flutter/model/page_schema.dart';
+import 'package:misa_ui_flutter/model/query_filter_item.dart';
 
 class QueryFilter {
-  Map<QueryFilterConj, Map<QueryFilterOp, List>> conditions = {
-    QueryFilterConj.all: {
-      QueryFilterOp.equal: [],
-      QueryFilterOp.contain: [],
-      QueryFilterOp.range: [],
-    },
-    QueryFilterConj.any: {
-      QueryFilterOp.equal: [],
-      QueryFilterOp.contain: [],
-      QueryFilterOp.range: [],
-    },
-    QueryFilterConj.not: {
-      QueryFilterOp.equal: [],
-      QueryFilterOp.contain: [],
-      QueryFilterOp.range: [],
-    },
-  };
+  Map<int, QueryFilterItem> conditions = {};
+  int _count = 0;
 
   QueryFilter();
 
-  factory QueryFilter.fromJson(Map<String, dynamic> json) {
-    QueryFilter filter = QueryFilter();
-    for (String conj in json.keys) {
-      QueryFilterConj conjEnum = QueryFilterConj.values.firstWhere(
-          (element) => element.toString().split('.').last == conj.toLowerCase());
-      for (String op in json[conj].keys) {
-        QueryFilterOp opEnum = QueryFilterOp.values.firstWhere(
-            (element) => element.toString().split('.').last == op.toLowerCase());
-        for (Map<String, dynamic> condition in json[conj][op]) {
-          String property = condition.keys.first;
-          dynamic value = condition.values.first;
-          filter.add(property: property, value: value, op: opEnum, conj: conjEnum);
-        }
-      }
-    }
-    return filter;
+  int add(QueryFilterItem item) {
+    conditions[++_count] = item;
+    return _count;
   }
 
-  void add({
-    required String property,
-    required dynamic value,
-    QueryFilterOp op = QueryFilterOp.equal,
-    QueryFilterConj conj = QueryFilterConj.all,
-  }) {
-    if (op == QueryFilterOp.contain && value is! List) {
-      value = [value];
-    }
-    if (op == QueryFilterOp.range && (value is! List || value.length != 2)) {
-      throw Exception('Range value must be a list of 2 elements');
-    }
-    conditions[conj]![op]!.add({property: value});
+  void remove(int id) {
+    conditions.remove(id);
   }
 
-  Map<String, List> toMap() {
-    Map<String, List> result = {
-      'All': [],
-      'Any': [],
-      'Not': [],
-    };
-    for (QueryFilterConj conj in conditions.keys) {
-      String conjStr = conj.toString().split('.').last;
-      conjStr = conjStr[0].toUpperCase() + conjStr.substring(1);
-      for (QueryFilterOp op in conditions[conj]!.keys) {
-        String opStr = op.toString().split('.').last;
-        for (Map<String, dynamic> condition in conditions[conj]![op]!) {
-          String property = condition.keys.first;
-          dynamic value = condition.values.first;
-          if (op == QueryFilterOp.equal) {
-            result[conjStr]!.add({opStr:{property: value}});
-          } else if (op == QueryFilterOp.contain) {
-            result[conjStr]!.add({opStr:{property: value}});
-          } else if (op == QueryFilterOp.range) {
-            result[conjStr]!.add({opStr:{property: value}});
-          }
-        }
+  factory QueryFilter.fromJson(
+      PageSchema pageSchema, Map<String, List<Map<String, Map>>> json) {
+    QueryFilter result = QueryFilter();
+    json.forEach((String conjStr, List<Map<String, Map>> items) {
+      final conj = QueryFilterConj.values.firstWhere(
+          (e) => e.toString().split('.').last == conjStr.toLowerCase());
+      for (final Map<String, Map> item in items) {
+        final op = QueryFilterOp.values
+            .firstWhere((e) => e.toString().split('.').last == item.keys.first);
+        final entry = item.values.first;
+        result.add(QueryFilterItem(
+          schema: pageSchema.properties![entry.keys.first]!,
+          operator: QueryFilterItemOperator(conj: conj, op: op),
+          value1: entry.values.first is List
+              ? entry.values.first[0]
+              : entry.values.first,
+          value2: op == QueryFilterOp.range ? entry.values.first[1] : null,
+        ));
       }
-    }
+    });
+    return result;
+  }
 
+  Map<String, List<Map<String, Map>>> toJson() {
+    Map<String, List<Map<String, Map>>> result = {};
+    for (final item in conditions.values) {
+      String conj = item.operator.conj.toUpperCase();
+      if (!result.containsKey(conj)) {
+        result[conj] = [];
+      }
+      result[conj]!.add(item.toJson());
+    }
     return result;
   }
 }

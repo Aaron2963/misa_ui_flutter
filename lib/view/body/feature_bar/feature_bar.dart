@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
+import 'package:misa_ui_flutter/model/page_schema.dart';
+import 'package:misa_ui_flutter/model/query_filter.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/filter_feature.dart';
@@ -187,11 +189,16 @@ class _FeatureBarAction extends StatelessWidget {
   }
 
   Widget? _buildFeature(BuildContext context, ViewFeature feature) {
+    BodyStateProvider bodyState = context.watch<BodyStateProvider>();
     switch (feature) {
       case ViewFeature.insert:
         return const InsertFeature();
       case ViewFeature.filter:
-        return const FilterFeature();
+        return FilterFeature(
+          title: bodyState.viewMenuItem?.title ?? '',
+          pageSchema: bodyState.pageSchema ?? PageSchema.blank(),
+          filter: bodyState.payload?.filter ?? QueryFilter(),
+        );
       case ViewFeature.pagination:
         return const PaginationBar();
       default:
