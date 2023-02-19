@@ -93,6 +93,14 @@ class QueryFilterItem {
       }
     };
   }
+
+  List<String> toStrings() {
+    List<String> strings = [schema.title ?? schema.key, operator.toString(), value1];
+    if (operator.op == QueryFilterOp.range && value2 != null) {
+      strings.addAll(['~', value2!]);
+    }
+    return strings;
+  }
 }
 
 class QueryFilterItemOperator {

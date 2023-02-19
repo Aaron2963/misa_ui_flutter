@@ -9,6 +9,12 @@ class MisaLocale extends ChangeNotifier {
   Locale get locale =>
       Locale(langCode.substring(0, 2), langCode.substring(2, 4));
 
+  bool get separatorNeeded {
+    Set<String> hasSeparator = {'en'};
+    String lang = langCode.substring(0, 2);
+    return hasSeparator.contains(lang);
+  }
+
   Future<void> setLangCode(String langCode) async {
     this.langCode = langCode;
     await loadDictionary();

@@ -9,11 +9,13 @@ import 'package:misa_ui_flutter/view/body/rich_dialog.dart';
 import 'package:provider/provider.dart';
 
 class FilterFeature extends StatefulWidget {
+  final BodyStateProvider bodyStateProvider;
   final PageSchema pageSchema;
   final String title;
   final QueryFilter filter;
   const FilterFeature({
     super.key,
+    required this.bodyStateProvider,
     required this.pageSchema,
     required this.title,
     required this.filter,
@@ -31,7 +33,7 @@ class _FilterFeatureState extends State<FilterFeature> {
   }
 
   void _onFilter(BuildContext context) {
-    context.read<BodyStateProvider>().setQueryFilter(widget.filter);
+    widget.bodyStateProvider.setQueryFilter(widget.filter);
     Navigator.of(context).pop();
   }
 
@@ -246,9 +248,12 @@ class _FilterConditionContent extends StatefulWidget {
 class _FilterConditionContentState extends State<_FilterConditionContent> {
   final TextEditingController _controller1 = TextEditingController();
   final TextEditingController _controller2 = TextEditingController();
+
+  // 建立文字輸入
   Widget buildField([int index = 1]) {
     String initialValue =
-        (index == 1 ? widget.filterItem.value1 : widget.filterItem.value2) ?? '';
+        (index == 1 ? widget.filterItem.value1 : widget.filterItem.value2) ??
+            '';
     TextEditingController controller = index == 1 ? _controller1 : _controller2;
     controller.text = initialValue;
     //值的型別是布林值
@@ -286,11 +291,11 @@ class _FilterConditionContentState extends State<_FilterConditionContent> {
         onTap: () async {
           final DateTime? picked = await showDatePicker(
             context: context,
-            initialDate:
-                DateTime.tryParse(initialValue) ?? DateTime.now(),
+            initialDate: DateTime.tryParse(initialValue) ?? DateTime.now(),
             firstDate: DateTime(1900),
             lastDate: DateTime(2200),
-            helpText: locale.translate(widget.filterItem.schema.title ?? widget.filterItem.schema.key),
+            helpText: locale.translate(
+                widget.filterItem.schema.title ?? widget.filterItem.schema.key),
           );
           if (picked != null) {
             setState(() {
@@ -307,20 +312,25 @@ class _FilterConditionContentState extends State<_FilterConditionContent> {
         },
       );
     }
-    return TextFormField(
-      decoration: const InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 8),
-      ),
-      controller: controller,
-      onChanged: (value) {
-        setState(() {
-          if (index == 1) {
-            widget.filterItem.value1 = value;
-          } else {
-            widget.filterItem.value2 = value;
-          }
-        });
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (!hasFocus) {
+          setState(() {
+            if (index == 1) {
+              widget.filterItem.value1 = controller.text;
+            } else {
+              widget.filterItem.value2 = controller.text;
+            }
+            print('focus out: ${widget.filterItem.toStrings()}');
+          });
+        }
       },
+      child: TextFormField(
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 8),
+        ),
+        controller: controller,
+      ),
     );
   }
 

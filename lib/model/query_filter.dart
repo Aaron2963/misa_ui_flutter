@@ -50,4 +50,12 @@ class QueryFilter {
     }
     return result;
   }
+
+  List<List<String>> get brief {
+    List<List<String>> result = [];
+    for (final item in conditions.values) {
+      result.add(item.toStrings());
+    }
+    return result;
+  }
 }

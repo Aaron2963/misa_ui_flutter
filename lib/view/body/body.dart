@@ -4,6 +4,7 @@ import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
 import 'package:misa_ui_flutter/model/query_filter.dart';
+import 'package:misa_ui_flutter/model/query_filter_item.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/feature_bar.dart';
 import 'package:misa_ui_flutter/view/body/page_body/page_body.dart';
@@ -80,6 +81,18 @@ class BodyStateProvider extends ChangeNotifier {
       totalPage = (payload!.total / limit).ceil();
       notifyListeners();
     }
+  }
+
+  List<String> getQueryFilterBrief() {
+    if (payload == null || payload!.filter == null) {
+      return [];
+    }
+    List<String> brief = [];
+    for (QueryFilterItem filter in payload!.filter!.conditions.values) {
+      if (brief.isNotEmpty) brief.add(', ');
+      brief = [...brief, ...filter.toStrings()];
+    }
+    return brief;
   }
 
   Future<void> setCurrentPage(int page,

@@ -105,6 +105,7 @@ class FeatureBar extends StatelessWidget {
     final TextDirection direction =
         alignEnd ? TextDirection.rtl : TextDirection.ltr;
     final viewMenuItem = context.watch<BodyStateProvider>().viewMenuItem;
+    final locale = context.watch<MisaLocale>();
     if (viewMenuItem == null) return const SizedBox();
     ViewType nowViewType = viewType ?? viewMenuItem.viewType;
     List<ViewFeature> nowFeatures = features ?? viewMenuItem.features;
@@ -125,6 +126,38 @@ class FeatureBar extends StatelessWidget {
         features: nowFeatures,
         direction: direction,
       ));
+    }
+    if (nowFeatures.contains(ViewFeature.filter) && !isBottom) {
+      final filterBrief = context
+          .watch<BodyStateProvider>()
+          .getQueryFilterBrief()
+          .map((str) => locale.translate(str))
+          .join(locale.separatorNeeded ? ' ': '');
+      if (filterBrief.isNotEmpty) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              textDirection: direction,
+              children: actions,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 32),
+              child: Tooltip(
+                message: '${locale.translate('Search')}: $filterBrief',
+                child: Text(
+                  '${locale.translate('Search')}: $filterBrief',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -194,10 +227,16 @@ class _FeatureBarAction extends StatelessWidget {
       case ViewFeature.insert:
         return const InsertFeature();
       case ViewFeature.filter:
+        final pageSchema = bodyState.pageSchema ?? PageSchema.blank();
+        final QueryFilter filter = bodyState.payload?.filter != null
+            ? QueryFilter.fromJson(
+                pageSchema, bodyState.payload!.filter!.toJson())
+            : QueryFilter();
         return FilterFeature(
+          bodyStateProvider: bodyState,
           title: bodyState.viewMenuItem?.title ?? '',
-          pageSchema: bodyState.pageSchema ?? PageSchema.blank(),
-          filter: bodyState.payload?.filter ?? QueryFilter(),
+          pageSchema: pageSchema,
+          filter: filter,
         );
       case ViewFeature.pagination:
         return const PaginationBar();
@@ -209,13 +248,9 @@ class _FeatureBarAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
-    final featureBody = _buildFeature(context, feature);
-    if (featureBody == null) {
-      return const SizedBox();
-    }
 
     if (feature == ViewFeature.pagination || feature == ViewFeature.quickAct) {
-      return featureBody;
+      return _buildFeature(context, feature) ?? const SizedBox();
     }
 
     final icon = featureToIconData[feature];
@@ -230,7 +265,9 @@ class _FeatureBarAction extends StatelessWidget {
       showDialog(
         context: context,
         barrierDismissible: true,
-        builder: (context) => featureBody,
+        builder: (context) {
+          return _buildFeature(context, feature) ?? const SizedBox();
+        },
       );
     }
 
