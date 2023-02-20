@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
+import 'package:misa_ui_flutter/view/body/page_body/detail_view_body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/list_view_body.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +19,11 @@ class PageBody extends StatelessWidget {
     if (viewMenuItem.viewType == ViewType.list) {
       return SingleChildScrollView(
         child: ListViewBody(key: Key('listView-${viewMenuItem.title}')),
+      );
+    }
+    if (viewMenuItem.viewType == ViewType.detail) {
+      return SingleChildScrollView(
+        child: DetailViewBody(key: Key('detailView-${viewMenuItem.title}')),
       );
     }
     return Text(

@@ -15,7 +15,7 @@ final Map<String, dynamic> mockData = {
       "Translator": "",
       "Brief": "",
       "Detail":
-          "&amp;lt;p&amp;gt;http://www.yehyeh.com.tw/bookchi.aspx?mode=dbview&amp;amp;amp;sysid=00107240&amp;lt;/p&amp;gt;\n",
+          "&lt;p&gt;http://www.yehyeh.com.tw/bookchi.aspx?mode=dbview&amp;sysid=00107240&lt;/p&gt;\n",
       "ORIPublishDateTime": "2017-06-30 00:00:00",
       "PICSet":
           "[{\"Directory\":\"20230207\",\"Origin\":{\"FileName\":\"20230207rkoup8.jpg\",\"URL\":\"\",\"Title\":\"\",\"Alt\":\"\\u66f8\\u7c4d\\u5c01\\u9762\"},\"Large\":{\"FileName\":\"l20230207rkoup8.jpg\",\"URL\":\"\",\"Title\":\"\",\"Alt\":\"\\u66f8\\u7c4d\\u5c01\\u9762\"},\"Medium\":{\"FileName\":\"m20230207rkoup8.jpg\",\"URL\":\"\",\"Title\":\"\",\"Alt\":\"\\u66f8\\u7c4d\\u5c01\\u9762\"},\"Small\":{\"FileName\":\"s20230207rkoup8.jpg\",\"URL\":\"\",\"Title\":\"\",\"Alt\":\"\\u66f8\\u7c4d\\u5c01\\u9762\"}}]",
@@ -24,11 +24,30 @@ final Map<String, dynamic> mockData = {
         {
           "_PictureFile":
               "https://g4.misa.com.tw/yehyeh/data/cht/20230207/m20230207rkoup8.jpg",
+          "_PictureTitle": "Book Cover",
+          "_PictureAlt": "書籍封面"
+        },
+        {
+          "_PictureFile":
+              "https://g4.misa.com.tw/yehyeh/data/cht/20230207/m20230207rkoup8.jpg",
           "_PictureTitle": "",
           "_PictureAlt": "書籍封面"
         }
       ],
-      "_UploadFiles": []
+      "_UploadFiles": [
+        {
+          "_FileBinary":
+              "https://g4.misa.com.tw/yehyeh/data/cht/20230207/m20230207rkoup8.jpg",
+          "_FileTitle": "",
+          "_FileAlt": "書籍封面"
+        },
+        {
+          "_FileBinary":
+              "https://g4.misa.com.tw/yehyeh/data/cht/20230207/m20230207rkoup8.jpg",
+          "_FileTitle": "",
+          "_FileAlt": "書籍封面"
+        }
+      ]
     },
     {
       "TextbookID": "0rlf28nggmaqirwg",

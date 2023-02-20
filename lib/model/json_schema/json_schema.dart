@@ -71,6 +71,8 @@ class JsonSchema {
     }
   }
 
+  bool get showInDetail => !formOnly && component != 'hidden';
+
   String display(MisaLocale locale, dynamic value) {
     throw UnimplementedError();
   }
