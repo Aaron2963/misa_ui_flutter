@@ -6,6 +6,7 @@ import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/settings/view_settings.dart';
+import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:provider/provider.dart';
 
@@ -109,8 +110,8 @@ class _ListViewBodyState extends State<ListViewBody> {
       });
     }
     // 計算表格寬度
-    int headersLength =
-        min(pageSchema.headers!.length, (tableWidthLimit / (_cellWidth + _columnSpacing * 2)).floor());
+    int headersLength = min(pageSchema.headers!.length,
+        (tableWidthLimit / (_cellWidth + _columnSpacing * 2)).floor());
     List<JsonSchema> headers = List.generate(
       headersLength,
       (index) => pageSchema.headers![index],
@@ -174,8 +175,16 @@ class _ListViewBodyState extends State<ListViewBody> {
                       icon: const Icon(Icons.info_outline, size: 18.0),
                       tooltip: locale.translate('Detail'),
                       padding: EdgeInsets.zero,
-                      onPressed: () =>
-                          print("open detail: ${d[pageSchema.atId]}"),
+                      onPressed: () {
+                        context
+                            .read<BodyStateProvider>()
+                            .setAdvancedView(AdvancedView(
+                              title: locale.translate('Detail'),
+                              viewMode: ViewMode.detail,
+                              data: [d],
+                              onDispose: () {},
+                            ));
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 18.0),

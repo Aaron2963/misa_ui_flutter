@@ -3,6 +3,7 @@ import 'package:misa_ui_flutter/model/menu_item.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 import 'package:misa_ui_flutter/model/query_filter.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
+import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/filter_feature.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/insert_feature.dart';
@@ -106,10 +107,17 @@ class FeatureBar extends StatelessWidget {
         alignEnd ? TextDirection.rtl : TextDirection.ltr;
     final viewMenuItem = context.watch<BodyStateProvider>().viewMenuItem;
     final locale = context.watch<MisaLocale>();
+    final advancedView = context.watch<BodyStateProvider>().advancedView;
     if (viewMenuItem == null) return const SizedBox();
     ViewType nowViewType = viewType ?? viewMenuItem.viewType;
     List<ViewFeature> nowFeatures = features ?? viewMenuItem.features;
     List<Widget> actions = [];
+    // advencedView: detail 時，顯示固定的功能按鈕
+    if (advancedView != null && advancedView.viewMode == ViewMode.detail) {
+      if (isBottom) return const SizedBox();
+      return const _AdvancedDetailFeatureBar();
+    }
+    // 依據 viewType 及 features 決定要顯示哪些功能按鈕
     for (var position in [
       _FeatureBarPosition.left,
       _FeatureBarPosition.center,
@@ -127,12 +135,13 @@ class FeatureBar extends StatelessWidget {
         direction: direction,
       ));
     }
+    // 篩選條件文字摘要
     if (nowFeatures.contains(ViewFeature.filter) && !isBottom) {
       final filterBrief = context
           .watch<BodyStateProvider>()
           .getQueryFilterBrief()
           .map((str) => locale.translate(str))
-          .join(locale.separatorNeeded ? ' ': '');
+          .join(locale.separatorNeeded ? ' ' : '');
       if (filterBrief.isNotEmpty) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,6 +210,7 @@ class _FeatureBarAction extends StatelessWidget {
 
   final Map<ViewFeature, IconData> featureToIconData = const {
     ViewFeature.insert: Icons.add,
+    ViewFeature.edit: Icons.edit,
     ViewFeature.delete: Icons.delete,
     ViewFeature.filter: Icons.filter_alt,
   };
@@ -284,6 +294,51 @@ class _FeatureBarAction extends StatelessWidget {
       label: Text(title),
       style: style,
       onPressed: onPressed,
+    );
+  }
+}
+
+class _AdvancedDetailFeatureBar extends StatelessWidget {
+  const _AdvancedDetailFeatureBar();
+
+  List<Widget> buildActions(BuildContext context) {
+    final viewMenuItem = context.watch<BodyStateProvider>().viewMenuItem;
+    final locale = context.watch<MisaLocale>();
+    // 基本功能包含返回
+    List<Widget> actions = [
+      ElevatedButton.icon(
+        icon: const Icon(Icons.arrow_back),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: () {
+          context.read<BodyStateProvider>().advancedView?.onDispose();
+          context.read<BodyStateProvider>().setAdvancedView(null);
+        },
+        label: Text(locale.translate('返回')),
+      ),
+    ];
+    // 依據 ViewMenuItem 的設定，加入其他功能
+    if (viewMenuItem == null) return actions;
+    if (viewMenuItem.features.contains(ViewFeature.edit)) {
+      actions.add(const _FeatureBarAction(feature: ViewFeature.edit));
+    }
+    if (viewMenuItem.features.contains(ViewFeature.print)) {
+      actions.add(const _FeatureBarAction(feature: ViewFeature.print));
+    }
+    if (viewMenuItem.features.contains(ViewFeature.download)) {
+      actions.add(const _FeatureBarAction(feature: ViewFeature.download));
+    }
+    return actions;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      children: buildActions(context),
     );
   }
 }

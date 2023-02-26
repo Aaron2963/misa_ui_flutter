@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/json_schema/array_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
@@ -41,7 +42,8 @@ void _launchUrl(BuildContext context, String url) {
 }
 
 class DetailViewBody extends StatefulWidget {
-  const DetailViewBody({super.key});
+  final DataPayload? payload;
+  const DetailViewBody({super.key, this.payload});
 
   @override
   State<DetailViewBody> createState() => _DetailViewBodyState();
@@ -60,7 +62,7 @@ class _DetailViewBodyState extends State<DetailViewBody> {
   Widget build(BuildContext context) {
     final bodyState = context.watch<BodyStateProvider>();
     final pageSchema = bodyState.pageSchema;
-    final payload = bodyState.payload;
+    final payload = widget.payload ?? bodyState.payload;
     if (pageSchema == null || payload == null) {
       return const Center(
         child: Text("No data"),
@@ -238,12 +240,14 @@ class _DetailViewRowState extends State<_DetailViewRow> {
     if (widget.schema.component == 'file') {
       return Row(
         children: [
-          Text(
-            widget.content,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: Colors.black87),
+          Expanded(
+            child: Text(
+              widget.content,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: Colors.black87),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

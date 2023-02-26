@@ -6,6 +6,7 @@ import 'package:misa_ui_flutter/model/menu_item.dart';
 import 'package:misa_ui_flutter/model/query_filter.dart';
 import 'package:misa_ui_flutter/model/query_filter_item.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
+import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/feature_bar.dart';
 import 'package:misa_ui_flutter/view/body/page_body/page_body.dart';
 import 'package:provider/provider.dart';
@@ -41,10 +42,11 @@ class _BodyState extends State<Body> {
         const Divider(),
         const FeatureBar(),
         const Expanded(
-            child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: PageBody(),
-        )),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: PageBody(),
+          ),
+        ),
         const FeatureBar.bottom(),
       ],
     );
@@ -55,6 +57,7 @@ class BodyStateProvider extends ChangeNotifier {
   String title = '';
   PageSchema? pageSchema;
   ViewMenuItem? viewMenuItem;
+  AdvancedView? advancedView;
   int currentPage = 1;
   int limit = 5;
   int? totalPage;
@@ -109,5 +112,10 @@ class BodyStateProvider extends ChangeNotifier {
       notifyListeners();
     }
     return;
+  }
+
+  void setAdvancedView(AdvancedView? view) {
+    advancedView = view;
+    notifyListeners();
   }
 }
