@@ -70,15 +70,73 @@ class _DetailViewBodyState extends State<DetailViewBody> {
     }
     final data =
         payload.data.isNotEmpty ? payload.data[0] : <String, dynamic>{};
+    final collapsing =
+        pageSchema.options?.map((e) => e.key).toSet() ?? <String>{};
+    List<JsonSchema> props = pageSchema.properties!.values
+        .where((e) => e.showInDetail && !collapsing.contains(e.key))
+        .toList();
+    return Column(
+      children: [
+        ...List.generate(
+          props.length,
+          (i) => _DetailViewRow(
+            schema: props[i],
+            content: data[props[i].key] ?? '',
+            hasBackgroundColor: i % 2 == 0,
+          ),
+        ),
+        if (collapsing.isNotEmpty)
+          _DetailCollapsed(
+            payload: widget.payload,
+            startIndex: props.length,
+          ),
+      ],
+    );
+  }
+}
+
+class _DetailCollapsed extends StatefulWidget {
+  final DataPayload? payload;
+  final int startIndex;
+  const _DetailCollapsed({required this.payload, required this.startIndex});
+
+  @override
+  State<_DetailCollapsed> createState() => _DetailCollapsedState();
+}
+
+class _DetailCollapsedState extends State<_DetailCollapsed> {
+  bool _isExpanded = false;
+  @override
+  Widget build(BuildContext context) {
+    final locale = context.watch<MisaLocale>();
+    if (!_isExpanded) {
+      return Container(
+        alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.all(16),
+        child: ElevatedButton.icon(
+          onPressed: () => setState(() => _isExpanded = true),
+          icon: const Icon(Icons.expand_more),
+          label: Text(locale.translate('More'), textAlign: TextAlign.center),
+        ),
+      );
+    }
+    final bodyState = context.watch<BodyStateProvider>();
+    final pageSchema = bodyState.pageSchema;
+    if (pageSchema == null || widget.payload == null) {
+      return const SizedBox();
+    }
+    final data = widget.payload!.data.isNotEmpty
+        ? widget.payload!.data[0]
+        : <String, dynamic>{};
     List<JsonSchema> props =
-        pageSchema.properties!.values.where((e) => e.showInDetail).toList();
+        pageSchema.options!.where((e) => e.showInDetail).toList();
     return Column(
       children: List.generate(
         props.length,
         (i) => _DetailViewRow(
           schema: props[i],
           content: data[props[i].key] ?? '',
-          hasBackgroundColor: i % 2 == 0,
+          hasBackgroundColor: (i + widget.startIndex) % 2 == 0,
         ),
       ),
     );

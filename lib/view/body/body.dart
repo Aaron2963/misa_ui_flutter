@@ -67,6 +67,7 @@ class BodyStateProvider extends ChangeNotifier {
   void changeViewMenu({PageSchema? pageSchema, ViewMenuItem? viewMenuItem}) {
     this.pageSchema = pageSchema;
     this.viewMenuItem = viewMenuItem;
+    advancedView = null;
     if (pageSchema != null && pageSchema.atTable.isNotEmpty) {
       _dataController = DataController(pageSchema.atTable);
     } else {

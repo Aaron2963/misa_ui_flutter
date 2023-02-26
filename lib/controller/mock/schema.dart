@@ -87,6 +87,7 @@ final Map<String, dynamic> mockSchema = {
       "type": "string",
       "title": "Detail",
       "component": "richtext",
+      "purpose": ["option"],
       "richtextStyles": ["../plugins/bootstrap/css/bootstrap.min.css"]
     },
     "_Pictures": {
@@ -116,6 +117,7 @@ final Map<String, dynamic> mockSchema = {
     "_UploadFiles": {
       "type": "array",
       "title": "Files",
+      "purpose": ["option"],
       "items": {
         "type": "object",
         "properties": {
