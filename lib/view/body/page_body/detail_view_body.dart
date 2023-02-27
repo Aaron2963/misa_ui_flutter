@@ -8,8 +8,8 @@ import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/string_json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
+import 'package:misa_ui_flutter/view/utility.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 const double _titleWidth = 200;
 final HtmlUnescape _unescape = HtmlUnescape();
@@ -26,18 +26,6 @@ String _getDisplayText(BuildContext context, JsonSchema schema, String value) {
     return locale.translate(sch.texts?.elementAt(i) ?? value);
   } catch (e) {
     return value;
-  }
-}
-
-//開啟網址
-void _launchUrl(BuildContext context, String url) {
-  try {
-    launchUrlString(url);
-  } catch (e) {
-    final locale = context.read<MisaLocale>();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(locale.translate('Cannot open url'))),
-    );
   }
 }
 
@@ -87,7 +75,7 @@ class _DetailViewBodyState extends State<DetailViewBody> {
         ),
         if (collapsing.isNotEmpty)
           _DetailCollapsed(
-            payload: widget.payload,
+            payload: payload,
             startIndex: props.length,
           ),
       ],
@@ -112,7 +100,7 @@ class _DetailCollapsedState extends State<_DetailCollapsed> {
     if (!_isExpanded) {
       return Container(
         alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: ElevatedButton.icon(
           onPressed: () => setState(() => _isExpanded = true),
           icon: const Icon(Icons.expand_more),
@@ -288,7 +276,7 @@ class _DetailViewRowState extends State<_DetailViewRow> {
               shape: const CircleBorder(),
             ),
             child: const Icon(Icons.open_in_new),
-            onPressed: () => _launchUrl(context, widget.content),
+            onPressed: () => launchUrl(context, widget.content),
           ),
         ],
       );
@@ -314,7 +302,7 @@ class _DetailViewRowState extends State<_DetailViewRow> {
               backgroundColor: Colors.white,
               shape: const CircleBorder(),
             ),
-            onPressed: () => _launchUrl(context, widget.content),
+            onPressed: () => launchUrl(context, widget.content),
             child: const Icon(Icons.download_rounded),
           ),
         ],
@@ -434,7 +422,7 @@ class _ImageCard extends StatelessWidget {
                       backgroundColor: Colors.white,
                       shape: const CircleBorder(),
                     ),
-                    onPressed: () => _launchUrl(context, imageUrl),
+                    onPressed: () => launchUrl(context, imageUrl),
                     child: const Icon(Icons.open_in_new),
                   ),
                 ),
@@ -452,7 +440,9 @@ class _ImageCard extends StatelessWidget {
                     Text('${locale.translate(e.title ?? e.key)}:',
                         style: Theme.of(context).textTheme.bodySmall),
                     Text(
-                      _getDisplayText(context, e, content[e.key] ?? ''),
+                      e.runtimeType == StringJsonSchema
+                          ? e.display(locale, content[e.key] ?? '')
+                          : content[e.key] ?? '',
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
