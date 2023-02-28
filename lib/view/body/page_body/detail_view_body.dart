@@ -14,21 +14,6 @@ import 'package:provider/provider.dart';
 const double _titleWidth = 200;
 final HtmlUnescape _unescape = HtmlUnescape();
 
-//翻譯文字內容 (enum)
-String _getDisplayText(BuildContext context, JsonSchema schema, String value) {
-  final locale = context.watch<MisaLocale>();
-  try {
-    final sch = schema as StringJsonSchema;
-    final i = sch.enumValues!.indexOf(value);
-    if (i == -1) {
-      return value;
-    }
-    return locale.translate(sch.texts?.elementAt(i) ?? value);
-  } catch (e) {
-    return value;
-  }
-}
-
 class DetailViewBody extends StatefulWidget {
   final DataPayload? payload;
   const DetailViewBody({super.key, this.payload});

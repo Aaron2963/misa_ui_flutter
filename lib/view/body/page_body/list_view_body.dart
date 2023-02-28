@@ -182,7 +182,6 @@ class _ListViewBodyState extends State<ListViewBody> {
                               title: locale.translate('Detail'),
                               viewMode: ViewMode.detail,
                               data: [d],
-                              onDispose: () {},
                             ));
                       },
                     ),
@@ -190,8 +189,17 @@ class _ListViewBodyState extends State<ListViewBody> {
                       icon: const Icon(Icons.edit_outlined, size: 18.0),
                       tooltip: locale.translate('Edit'),
                       padding: EdgeInsets.zero,
-                      onPressed: () =>
-                          print("edit data: ${d[pageSchema.atId]}"),
+                      onPressed: () {
+                        final formKey = GlobalKey<FormState>();
+                        context
+                            .read<BodyStateProvider>()
+                            .setAdvancedView(AdvancedView(
+                              title: locale.translate('Edit'),
+                              viewMode: ViewMode.form,
+                              data: [d],
+                              formKey: formKey,
+                            ));
+                      },
                     ),
                   ],
                 ),

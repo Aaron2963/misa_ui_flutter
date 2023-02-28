@@ -117,6 +117,11 @@ class FeatureBar extends StatelessWidget {
       if (isBottom) return const SizedBox();
       return const _AdvancedDetailFeatureBar();
     }
+    // advencedView: form 時，顯示固定的功能按鈕
+    if (advancedView != null && advancedView.viewMode == ViewMode.form) {
+      if (isBottom) return const SizedBox();
+      return const _AdvancedFormFeatureBar();
+    }
     // 依據 viewType 及 features 決定要顯示哪些功能按鈕
     for (var position in [
       _FeatureBarPosition.left,
@@ -213,6 +218,8 @@ class _FeatureBarAction extends StatelessWidget {
     ViewFeature.edit: Icons.edit,
     ViewFeature.delete: Icons.delete,
     ViewFeature.filter: Icons.filter_alt,
+    ViewFeature.saveAsNew: Icons.save_as,
+    ViewFeature.save: Icons.save,
   };
 
   String featureToString(ViewFeature feature) {
@@ -225,6 +232,8 @@ class _FeatureBarAction extends StatelessWidget {
       case ViewFeature.delete:
         return Colors.red;
       case ViewFeature.filter:
+      case ViewFeature.save:
+      case ViewFeature.saveAsNew:
         return Colors.blue;
       default:
         return Colors.orange;
@@ -314,10 +323,10 @@ class _AdvancedDetailFeatureBar extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          context.read<BodyStateProvider>().advancedView?.onDispose();
+          context.read<BodyStateProvider>().advancedView?.onDispose?.call();
           context.read<BodyStateProvider>().setAdvancedView(null);
         },
-        label: Text(locale.translate('返回')),
+        label: Text(locale.translate('Back')),
       ),
     ];
     // 依據 ViewMenuItem 的設定，加入其他功能
@@ -331,6 +340,61 @@ class _AdvancedDetailFeatureBar extends StatelessWidget {
     if (viewMenuItem.features.contains(ViewFeature.download)) {
       actions.add(const _FeatureBarAction(feature: ViewFeature.download));
     }
+    return actions;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      children: buildActions(context),
+    );
+  }
+}
+
+class _AdvancedFormFeatureBar extends StatelessWidget {
+  const _AdvancedFormFeatureBar();
+
+  List<Widget> buildActions(BuildContext context) {
+    final viewMenuItem = context.watch<BodyStateProvider>().viewMenuItem;
+    final locale = context.watch<MisaLocale>();
+    // 基本功能包含取消
+    List<Widget> actions = [
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: () {
+          context.read<BodyStateProvider>().advancedView?.onDispose?.call();
+          context.read<BodyStateProvider>().setAdvancedView(null);
+        },
+        child: Text(locale.translate('Cancel')),
+      ),
+    ];
+    // 依據 ViewMenuItem 的設定，加入其他功能
+    if (viewMenuItem == null) return actions;
+    if (viewMenuItem.features.contains(ViewFeature.saveAsNew)) {
+      actions.add(const _FeatureBarAction(feature: ViewFeature.saveAsNew));
+    }
+    //基本功能包含儲存
+    actions.add(ElevatedButton.icon(
+      icon: const Icon(Icons.save),
+      label: Text(locale.translate('Save')),
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: () {
+        final formState = context.read<BodyStateProvider>().advancedView?.formKey?.currentState;
+        if (formState == null) return;
+        if (!formState.validate()) return;
+        formState.save();
+      },
+    ));
     return actions;
   }
 

@@ -47,4 +47,14 @@ class DataPayload {
       data: [json],
     );
   }
+
+  void set(int index, String key, dynamic value) {
+    if (data.length <= index) return;
+    data[index][key] = value;
+  }
+
+  dynamic get(int index, String key) {
+    if (data.length <= index) return null;
+    return data[index][key];
+  }
 }

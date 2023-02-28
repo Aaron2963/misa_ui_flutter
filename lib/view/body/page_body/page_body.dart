@@ -4,6 +4,7 @@ import 'package:misa_ui_flutter/model/menu_item.dart';
 import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/detail_view_body.dart';
+import 'package:misa_ui_flutter/view/body/page_body/form_view_body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/list_view_body.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,14 @@ class PageBody extends StatelessWidget {
     if (viewMenuItem == null) {
       return const Center(
         child: Text("No schema or view type"),
+      );
+    }
+    if (advancedView != null && advancedView.viewMode == ViewMode.form) {
+      return SingleChildScrollView(
+        child: FormViewBody(
+          key: Key('formView-${viewMenuItem.title}'),
+          payload: DataPayload.single(advancedView.data.first),
+        ),
       );
     }
     if (viewMenuItem.viewType == ViewType.list) {
