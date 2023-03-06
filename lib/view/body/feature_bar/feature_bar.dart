@@ -389,10 +389,15 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        final formState = context.read<BodyStateProvider>().advancedView?.formKey?.currentState;
+        final formState = context
+            .read<BodyStateProvider>()
+            .advancedView
+            ?.formKey
+            ?.currentState;
         if (formState == null) return;
         if (!formState.validate()) return;
         formState.save();
+        // TODO: call controller to insert/update data
       },
     ));
     return actions;

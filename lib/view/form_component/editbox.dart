@@ -25,7 +25,6 @@ class _EditboxState extends State<Editbox> {
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
     String title = locale.translate(widget.schema.title ?? widget.schema.key);
-    print(Theme.of(context).inputDecorationTheme.floatingLabelStyle);
     Widget label = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -33,8 +32,7 @@ class _EditboxState extends State<Editbox> {
         if (widget.required) const Text('*', style: TextStyle(color: Colors.red, fontSize: 20)),
       ],
     );
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 600.0),
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: TextFormField(
         decoration: InputDecoration(

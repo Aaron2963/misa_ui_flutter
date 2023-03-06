@@ -146,10 +146,27 @@ final Map<String, dynamic> mockSchema = {
       "purpose": ["header"]
     }
   },
-  "filter": ["TextbookID", "SERNO", "ISBN", "Name", "EDTDCP", "Keyword", "ORIPublishDateTime"],
+  "filter": [
+    "TextbookID",
+    "SERNO",
+    "ISBN",
+    "Name",
+    "EDTDCP",
+    "Keyword",
+    "ORIPublishDateTime"
+  ],
   "@id": "TextbookID",
   "dependentRequired": {
     "insert": ["SERNO", "Name", "TextbookTYPID"],
     "edit": ["SERNO", "Name", "TextbookTYPID"]
-  }
+  },
+  "layout": [
+    "Name",
+    ["SERNO", "ISBN"],
+    {
+      "TextbookTYPID": 3,
+      "Keyword": 6,
+      "Author": 3,
+    },
+  ]
 };

@@ -38,18 +38,21 @@ class FormViewBody extends StatelessWidget {
         node: FocusScopeNode(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: props
-              .map((e) => FormViewRow(
-                    key: Key(e.key),
-                    schema: e,
-                    value: data?.get(0, e.key),
-                    required: requiredProps.contains(e.key),
-                    onSaved: (value) {
-                      data?.set(0, e.key, value);
-                      // TODO: call controller to insert/update data
-                    },
-                  ))
-              .toList(),
+          children: pageSchema.formLayout.map((row) => Row(
+            mainAxisSize: MainAxisSize.max,
+            children: row.keys.map((JsonSchema sch) => Expanded(
+              flex: row[sch] ?? 1,
+              child: FormViewRow(
+                key: Key(sch.key),
+                schema: sch,
+                value: data?.get(0, sch.key),
+                required: requiredProps.contains(sch.key),
+                onSaved: (value) {
+                  data?.set(0, sch.key, value);
+                },
+              ),
+            )).toList(),
+          )).toList(),
         ),
       ),
     );
@@ -85,6 +88,9 @@ class FormViewRow extends StatelessWidget {
       //TODO: handle array type
       return Text('Array type not supported yet: ${schema.key}');
     }
-    return _buildComponent();
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: _buildComponent(),
+      );
   }
 }

@@ -100,4 +100,43 @@ class ObjectJsonSchema extends JsonSchema {
     }
     return '';
   }
+
+  List<Map<JsonSchema, int>> get formLayout {
+    List<Map<JsonSchema, int>> result = [];
+    if (layout != null) {
+      for (int i = 0; i < layout!.length; i++) {
+        if (layout![i] is String) {
+          if (properties!.containsKey(layout![i])) {
+            result.add({
+              properties![layout![i]]!: 1,
+            });
+          }
+        } else if (layout![i] is Map) {
+          Map<JsonSchema, int> row = {};
+          for (var k in layout![i].keys) {
+            if (properties!.containsKey(k) && layout![i][k] is int) {
+              row[properties![k]!] = layout![i][k];
+            }
+          }
+          result.add(row);
+        } else if (layout![i] is List) {
+          Map<JsonSchema, int> row = {};
+          for (var k in layout![i]) {
+            if (properties!.containsKey(k)) {
+              row[properties![k]!] = 1;
+            }
+          }
+          result.add(row);
+        }
+      }
+      return result;
+    }
+    //while no layout, every property will occupy 1 row
+    for (var e in properties!.values) {
+      if (e.readOnly != true && e.component != 'hidden') {
+        result.add({e: 1});
+      }
+    }
+    return result;
+  }
 }
