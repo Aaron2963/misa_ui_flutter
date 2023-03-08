@@ -1,4 +1,4 @@
-import 'package:misa_ui_flutter/controller/mock/data.dart';
+import 'package:misa_ui_flutter/controller/mock/short_data.dart';
 import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/query_filter.dart';
 

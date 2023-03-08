@@ -5,6 +5,7 @@ import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
+import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:misa_ui_flutter/view/form_component/editbox.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,11 @@ class FormViewBody extends StatelessWidget {
     final pageSchema = bodyState.pageSchema;
     final formKey = bodyState.advancedView?.formKey;
     final data = payload ?? bodyState.payload;
-    if (viewMenuItem == null || pageSchema == null || formKey == null) {
+    final formCache = bodyState.advancedView?.formCache;
+    if (viewMenuItem == null ||
+        pageSchema == null ||
+        formKey == null ||
+        formCache == null) {
       return const Center(
         child: Text("No schema or view type"),
       );
@@ -32,6 +37,7 @@ class FormViewBody extends StatelessWidget {
         child: _FormViewSegment(
           payload: data,
           schema: pageSchema,
+          formCache: formCache,
           mode: mode,
         ),
       ),
@@ -44,11 +50,15 @@ class _FormViewSegment extends StatelessWidget {
   final ObjectJsonSchema schema;
   final String mode;
   final bool required;
+  final FormCache formCache;
+  final List parentKeys;
   const _FormViewSegment({
     required this.payload,
     required this.schema,
+    required this.formCache,
     this.mode = 'edit',
     this.required = false,
+    this.parentKeys = const [],
   });
 
   @override
@@ -75,10 +85,12 @@ class _FormViewSegment extends StatelessWidget {
                           child: _FormViewRow(
                             key: Key(sch.key),
                             schema: sch,
+                            formCache: formCache,
                             value: data.get(0, sch.key),
                             required: requiredProps.contains(sch.key),
+                            parentKeys: parentKeys,
                             onSaved: (value) {
-                              data.set(0, sch.key, value);
+                              formCache.set(sch.key, value, parentKeys);
                             },
                           ),
                         ))
@@ -94,12 +106,16 @@ class _FormViewRow extends StatefulWidget {
   final bool required;
   final dynamic value;
   final ValueSetter<String?>? onSaved;
+  final FormCache formCache;
+  final List parentKeys;
   const _FormViewRow({
     super.key,
     required this.schema,
+    required this.formCache,
     this.required = false,
     this.value,
     this.onSaved,
+    this.parentKeys = const [],
   });
 
   @override
@@ -126,54 +142,42 @@ class _FormViewRowState extends State<_FormViewRow> {
         title: locale.translate(widget.schema.title ?? widget.schema.key),
         child: _FormViewSegment(
           schema: widget.schema as ObjectJsonSchema,
+          formCache: widget.formCache,
           payload: DataPayload.single(widget.value),
           required: widget.required,
+          parentKeys: [...widget.parentKeys, widget.schema.key],
         ),
       );
     }
     if (widget.schema.type == SchemaDataType.array) {
       final arraySchema = widget.schema as ArrayJsonSchema;
-      final valueList = widget.value as List;
+      final valueList = widget.value as Map<String, dynamic>;
+      int valueListLength = valueList.length;
       return _FormViewSubSegmentFrame(
           title: locale.translate(widget.schema.title ?? widget.schema.key),
           onAdd: () {
-            valueList.add(arraySchema.items.blankValue);
+            String k = (valueListLength++).toString();
+            while (valueList.containsKey(k)) {
+              k = (valueListLength++).toString();
+            }
+            valueList[k] = arraySchema.items.blankValue;
             setState(() {});
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (var i = 0; i < valueList.length; i++)
-                Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0, right: 12.0),
-                      child: _FormViewRow(
-                        schema: arraySchema.items,
-                        value: valueList[i],
-                        required: widget.required,
-                        onSaved: (value) {
-                          //TODO: on save
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(0),
-                          shape: const CircleBorder(),
-                          backgroundColor: Colors.red,
-                        ),
-                        child: const Icon(Icons.close),
-                        onPressed: () {
-                          valueList.removeAt(i);
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
+                _FormViewArrayItemFrame(
+                  key: Key(
+                      '${widget.parentKeys.join('.')}.${widget.schema.key}.$i-${valueList[i]}'),
+                  schema: arraySchema.items,
+                  formCache: widget.formCache,
+                  value: valueList['$i'],
+                  required: widget.required,
+                  parentKeys: [...widget.parentKeys, widget.schema.key, '$i'],
+                  onRemove: () => setState(() {
+                    valueList['$i'] = null;
+                  }),
                 ),
             ],
           ));
@@ -264,6 +268,61 @@ class _FormViewSubSegmentFrameState extends State<_FormViewSubSegmentFrame> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FormViewArrayItemFrame extends StatelessWidget {
+  final JsonSchema schema;
+  final dynamic value;
+  final FormCache formCache;
+  final List parentKeys;
+  final bool required;
+  final VoidCallback onRemove;
+  const _FormViewArrayItemFrame({
+    super.key,
+    required this.schema,
+    required this.value,
+    required this.formCache,
+    required this.parentKeys,
+    required this.required,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (value == null) {
+      return const SizedBox();
+    }
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0, right: 12.0),
+          child: _FormViewRow(
+            schema: schema,
+            formCache: formCache,
+            value: value,
+            required: required,
+            parentKeys: [...parentKeys, schema.key],
+            onSaved: (value) {
+              //TODO: on save
+            },
+          ),
+        ),
+        Positioned(
+          right: 0,
+          top: 0,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(0),
+              shape: const CircleBorder(),
+              backgroundColor: Colors.red,
+            ),
+            onPressed: onRemove,
+            child: const Icon(Icons.close),
+          ),
+        ),
+      ],
     );
   }
 }

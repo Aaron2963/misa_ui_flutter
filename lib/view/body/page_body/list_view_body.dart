@@ -8,6 +8,7 @@ import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/settings/view_settings.dart';
 import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
+import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:provider/provider.dart';
 
 const _cellWidth = 100.0;
@@ -198,6 +199,7 @@ class _ListViewBodyState extends State<ListViewBody> {
                               viewMode: ViewMode.form,
                               data: [d],
                               formKey: formKey,
+                              formCache: FormCache(d),
                             ));
                       },
                     ),

@@ -1,4 +1,4 @@
-import 'package:misa_ui_flutter/controller/mock/schema.dart';
+import 'package:misa_ui_flutter/controller/mock/short_schema.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
 
 class SchemaController {
