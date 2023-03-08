@@ -85,4 +85,21 @@ class StringJsonSchema extends JsonSchema {
     }
     return value.toString();
   }
+
+  @override
+  String get blankValue {
+    if (enumValues != null && enumValues!.isNotEmpty) {
+      return enumValues!.first;
+    }
+    if (format == SchemaFormat.date) {
+      return '1000-01-01';
+    }
+    if (format == SchemaFormat.datetime) {
+      return '1000-01-01 00:00:00';
+    }
+    if (format == SchemaFormat.json) {
+      return '[]';
+    }
+    return '';
+  }
 }

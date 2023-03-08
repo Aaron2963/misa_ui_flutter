@@ -90,11 +90,38 @@ final Map<String, dynamic> mockSchema = {
       "purpose": ["option"],
       "richtextStyles": ["../plugins/bootstrap/css/bootstrap.min.css"]
     },
+    "_Editors": {
+      "type": "object",
+      "title": "Editors",
+      "properties": {
+        "_AuthorName": {
+          "type": "string",
+          "title": "Author",
+          "component": "editbox",
+        },
+        "_TranslatorName": {
+          "type": "string",
+          "title": "Translator",
+          "component": "editbox",
+        },
+        "_EditorName": {
+          "type": "string",
+          "title": "Editor",
+          "component": "editbox",
+        },
+        "_AuditorName": {
+          "type": "string",
+          "title": "Auditor",
+          "component": "editbox",
+        },
+      }
+    },
     "_Pictures": {
       "type": "array",
       "title": "Pictures",
       "items": {
         "type": "object",
+        "title": "",
         "properties": {
           "_PictureFile": {
             "type": "string",
@@ -120,6 +147,7 @@ final Map<String, dynamic> mockSchema = {
       "purpose": ["option"],
       "items": {
         "type": "object",
+        "title": "",
         "properties": {
           "_FileBinary": {
             "type": "string",
@@ -160,13 +188,13 @@ final Map<String, dynamic> mockSchema = {
     "insert": ["SERNO", "Name", "TextbookTYPID"],
     "edit": ["SERNO", "Name", "TextbookTYPID"]
   },
-  "layout": [
-    "Name",
-    ["SERNO", "ISBN"],
-    {
-      "TextbookTYPID": 3,
-      "Keyword": 6,
-      "Author": 3,
-    },
-  ]
+  // "layout": [
+  //   "Name",
+  //   ["SERNO", "ISBN"],
+  //   {
+  //     "TextbookTYPID": 3,
+  //     "Keyword": 6,
+  //     "Author": 3,
+  //   },
+  // ]
 };

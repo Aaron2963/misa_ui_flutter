@@ -77,6 +77,10 @@ class JsonSchema {
     throw UnimplementedError();
   }
 
+  dynamic get blankValue {
+    throw UnimplementedError();
+  }
+
   static Set<SchemaPurpose>? toPurposeSet(List<String>? list) {
     if (list == null) {
       return null;

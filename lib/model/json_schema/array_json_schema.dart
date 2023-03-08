@@ -65,4 +65,7 @@ class ArrayJsonSchema extends JsonSchema {
     }
     return '';
   }
+
+  @override
+  List get blankValue => [];
 }

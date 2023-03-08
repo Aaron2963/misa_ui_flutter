@@ -29,7 +29,8 @@ class _EditboxState extends State<Editbox> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(title),
-        if (widget.required) const Text('*', style: TextStyle(color: Colors.red, fontSize: 20)),
+        if (widget.required)
+          const Text('*', style: TextStyle(color: Colors.red, fontSize: 20)),
       ],
     );
     return Padding(
@@ -37,7 +38,6 @@ class _EditboxState extends State<Editbox> {
       child: TextFormField(
         decoration: InputDecoration(
           label: label,
-          // labelText: title,
           border: const OutlineInputBorder(),
         ),
         textInputAction: TextInputAction.next,

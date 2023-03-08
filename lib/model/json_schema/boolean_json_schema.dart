@@ -55,4 +55,7 @@ class BooleanJsonSchema extends JsonSchema {
     }
     return value == true ? 'YES' : 'NO';
   }
+
+  @override
+  bool get blankValue => false;
 }

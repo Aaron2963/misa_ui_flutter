@@ -101,6 +101,16 @@ class ObjectJsonSchema extends JsonSchema {
     return '';
   }
 
+  @override
+  Map<String, dynamic> get blankValue {
+    Map<String, dynamic> result = {};
+    if (properties == null) return result;
+    for (var k in properties!.keys) {
+      result[k] = properties![k]!.blankValue;
+    }
+    return result;
+  }
+
   List<Map<JsonSchema, int>> get formLayout {
     List<Map<JsonSchema, int>> result = [];
     if (layout != null) {

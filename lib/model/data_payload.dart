@@ -48,6 +48,17 @@ class DataPayload {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'offset': offset,
+      'page': page,
+      'redirectUrl': redirectUrl,
+      'filter': filter?.toJson(),
+      'datas': data,
+    };
+  }
+
   void set(int index, String key, dynamic value) {
     if (data.length <= index) return;
     data[index][key] = value;

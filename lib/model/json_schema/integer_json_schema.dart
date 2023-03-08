@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
@@ -58,4 +60,7 @@ class IntegerJsonSchema extends JsonSchema {
     value = int.tryParse(value.toString()) ?? '';
     return value;
   }
+
+  @override
+  int get blankValue => max(0, minimum ?? 0);
 }
