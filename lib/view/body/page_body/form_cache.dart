@@ -1,3 +1,5 @@
+import 'package:misa_ui_flutter/model/json_schema/array_json_schema.dart';
+import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 
 class FormCache {
@@ -30,10 +32,24 @@ class FormCache {
     parent[key] = value;
   }
 
-  Map<String, dynamic> output(ObjectJsonSchema schema) {
-    Map<String, dynamic> output = {};
-    // TODO: implement output
-    return output;
+  dynamic output(JsonSchema schema, [dynamic data]) {
+    data = data ?? _cache;
+    if (schema.type == SchemaDataType.object) {
+      Map<String, dynamic> result = {};
+      final sch = schema as ObjectJsonSchema;
+      for (JsonSchema prop in sch.properties!.values) {
+        result[prop.key] = output(prop, data[prop.key]);
+      }
+      return result;
+    } else if (schema.type == SchemaDataType.array) {
+      final sch = schema as ArrayJsonSchema;
+      List result = [];
+      for (String k in data.keys) {
+        result.add(output(sch.items, data[k]));
+      }
+      return result;
+    }
+    return data;
   }
 
   @override

@@ -398,7 +398,10 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
         if (!formState.validate()) return;
         formState.save();
         // TODO: call controller to insert/update data
-        print(context.read<BodyStateProvider>().advancedView?.formCache ?? 'no form cache');
+        print(context.read<BodyStateProvider>().advancedView?.formCache?.output(
+                context.read<BodyStateProvider>().pageSchema ??
+                    PageSchema.blank()) ??
+            'no form cache');
       },
     ));
     return actions;
