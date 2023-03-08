@@ -6,6 +6,8 @@ final Map<String, dynamic> mockData = {
       "TextbookID": "0rpoxhnouca8zwvp",
       "SERNO": "00107240",
       "Name": "輔導原理與實務 第二版",
+      "_ShowOtherName": true,
+      "_OtherName": "Counseling Principles and Practice",
       "ORIPublishDateTime": "2017-06-30 00:00:00",
       "_Editors": {
         "_AuthorName": "鄔佩麗.翟宗悌.陳麗英.黃裕惠 著",

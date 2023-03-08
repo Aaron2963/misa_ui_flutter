@@ -22,6 +22,16 @@ final Map<String, dynamic> mockSchema = {
       "component": "editbox",
       "purpose": ["header"]
     },
+    "_ShowOtherName": {
+      "type": "boolean",
+      "title": "Show Other Name",
+      "component": "checkbox",
+    },
+    "_OtherName": {
+      "type": "string",
+      "title": "Other Name",
+      "component": "editbox",
+    },
     "_Editors": {
       "type": "object",
       "title": "Editors",

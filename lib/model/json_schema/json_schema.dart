@@ -10,6 +10,8 @@ enum SchemaDataType { string, integer, boolean, object, array }
 
 enum SchemaPurpose { header, option, caption, quickact, timeline }
 
+enum CompareEvent { before, after, show, hide, key, filter}
+
 class JsonSchema {
   final String key;
   final SchemaDataType type;
@@ -25,6 +27,7 @@ class JsonSchema {
   final String? renderFunction;
   final Set<SchemaPurpose>? purpose;
   final String? component;
+  final Map<String, CompareEvent?>? compare;
   final String? event;
   final bool formOnly;
   final bool readOnly;
@@ -46,6 +49,7 @@ class JsonSchema {
     this.renderFunction,
     this.purpose,
     this.component,
+    this.compare,
     this.event,
     this.formOnly = false,
     this.readOnly = false,

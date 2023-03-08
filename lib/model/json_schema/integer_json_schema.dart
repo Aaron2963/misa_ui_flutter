@@ -23,6 +23,7 @@ class IntegerJsonSchema extends JsonSchema {
     super.renderFunction,
     super.purpose,
     super.component,
+    super.compare,
     super.event,
     super.formOnly,
     super.readOnly,
@@ -52,6 +53,16 @@ class IntegerJsonSchema extends JsonSchema {
       readOnly: json['readOnly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'],
+      compare: Map<String, CompareEvent?>.fromIterables(
+        json['compare'].keys,
+        json['compare'].values.map((e) {
+          if (e == 'index') return CompareEvent.key;
+          if (CompareEvent.values.asNameMap().containsKey(e)) {
+            return CompareEvent.values.asNameMap()[e];
+          }
+          return null;
+        }).toList(),
+      ),
     );
   }
 
