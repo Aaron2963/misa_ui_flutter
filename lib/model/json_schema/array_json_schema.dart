@@ -54,16 +54,18 @@ class ArrayJsonSchema extends JsonSchema {
       readOnly: json['readOnly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'],
-      compare: Map<String, CompareEvent?>.fromIterables(
-        json['compare'].keys,
-        json['compare'].values.map((e) {
-          if (e == 'index') return CompareEvent.key;
-          if (CompareEvent.values.asNameMap().containsKey(e)) {
-            return CompareEvent.values.asNameMap()[e];
-          }
-          return null;
-        }).toList(),
-      ),
+      compare: json['compare'] != null
+          ? Map<String, CompareEvent?>.fromIterables(
+              json['compare'].keys,
+              json['compare'].values.map((e) {
+                if (e == 'index') return CompareEvent.key;
+                if (CompareEvent.values.asNameMap().containsKey(e)) {
+                  return CompareEvent.values.asNameMap()[e];
+                }
+                return null;
+              }).cast<CompareEvent?>(),
+            )
+          : null,
     );
   }
 

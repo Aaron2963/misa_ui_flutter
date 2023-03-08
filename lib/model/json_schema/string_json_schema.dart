@@ -65,16 +65,18 @@ class StringJsonSchema extends JsonSchema {
       value: json['value'],
       enumValues: (json['enum'] as List<dynamic>?)?.cast<String>(),
       texts: (json['texts'] as List<dynamic>?)?.cast<String>(),
-      compare: Map<String, CompareEvent?>.fromIterables(
-        json['compare'].keys,
-        json['compare'].values.map((e) {
-          if (e == 'index') return CompareEvent.key;
-          if (CompareEvent.values.asNameMap().containsKey(e)) {
-            return CompareEvent.values.asNameMap()[e];
-          }
-          return null;
-        }).toList(),
-      ),
+      compare: json['compare'] != null
+          ? Map<String, CompareEvent?>.fromIterables(
+              json['compare'].keys,
+              json['compare'].values.map((e) {
+                if (e == 'index') return CompareEvent.key;
+                if (CompareEvent.values.asNameMap().containsKey(e)) {
+                  return CompareEvent.values.asNameMap()[e];
+                }
+                return null;
+              }).cast<CompareEvent?>(),
+            )
+          : null,
     );
   }
 

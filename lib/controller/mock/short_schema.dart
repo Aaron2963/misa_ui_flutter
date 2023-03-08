@@ -25,12 +25,13 @@ final Map<String, dynamic> mockSchema = {
     "_ShowOtherName": {
       "type": "boolean",
       "title": "Show Other Name",
-      "component": "checkbox",
+      "component": "checkbox"
     },
     "_OtherName": {
       "type": "string",
       "title": "Other Name",
       "component": "editbox",
+      "compare": {"_ShowOtherName": "show"}
     },
     "_Editors": {
       "type": "object",

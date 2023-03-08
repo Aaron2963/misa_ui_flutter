@@ -55,3 +55,35 @@ class FormCache {
   @override
   String toString() => _cache.toString();
 }
+
+class FormSegmentInterAction {
+  // ignore: prefer_final_fields
+  Map<String, Map<CompareEvent, Set<String>>> _triggers = {};
+
+  void register(String actingKey, Map<String, CompareEvent?> compare) {
+    for (String triggerKey in compare.keys) {
+      CompareEvent? event = compare[triggerKey];
+      if (event == null) continue;
+      _triggers.putIfAbsent(triggerKey, () => <CompareEvent, Set<String>>{});
+      _triggers[triggerKey]!.putIfAbsent(event, () => <String>{});
+      _triggers[triggerKey]![event]!.add(actingKey);
+    }
+  }
+
+  bool hasTrigger(String triggerKey) {
+    return _triggers.containsKey(triggerKey);
+  }
+
+  Set<CompareEvent> getEvents(String triggerKey) {
+    if (!_triggers.containsKey(triggerKey)) return <CompareEvent>{};
+    return _triggers[triggerKey]!.keys.toSet();
+  }
+
+  bool hasEvent(String triggerKey, CompareEvent event) {
+    if (!_triggers.containsKey(triggerKey)) return false;
+    return _triggers[triggerKey]!.containsKey(event);
+  }
+
+  @override
+  String toString() => _triggers.toString();
+}

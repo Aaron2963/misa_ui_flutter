@@ -45,7 +45,7 @@ class FormViewBody extends StatelessWidget {
   }
 }
 
-class _FormViewSegment extends StatelessWidget {
+class _FormViewSegment extends StatefulWidget {
   final DataPayload? payload;
   final ObjectJsonSchema schema;
   final String mode;
@@ -62,41 +62,77 @@ class _FormViewSegment extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    Set<String> requiredProps = {};
-    if (required) {
-      if (schema.dependentRequired != null &&
-          schema.dependentRequired![mode] != null) {
-        requiredProps =
-            schema.dependentRequired![mode]!.map((e) => e.key).toSet();
-      } else if (schema.required != null) {
-        requiredProps = schema.required!.map((e) => e.key).toSet();
+  State<_FormViewSegment> createState() => _FormViewSegmentState();
+}
+
+class _FormViewSegmentState extends State<_FormViewSegment> {
+  // hidden props set
+  Set<String> hiddenKeys = {};
+  FormSegmentInterAction triggers = FormSegmentInterAction();
+
+  @override
+  void initState() {
+    super.initState();
+    // register handle compare event
+    for (JsonSchema sch in widget.schema.properties!.values) {
+      if (sch.compare != null) {
+        debugPrint('register: ${sch.key}: ${sch.compare}');
+        triggers.register(sch.key, sch.compare!);
       }
     }
-    final data = payload ?? DataPayload.single({});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // required props
+    Set<String> requiredProps = {};
+    if (widget.required) {
+      if (widget.schema.dependentRequired != null &&
+          widget.schema.dependentRequired![widget.mode] != null) {
+        requiredProps = widget.schema.dependentRequired![widget.mode]!
+            .map((e) => e.key)
+            .toSet();
+      } else if (widget.schema.required != null) {
+        requiredProps = widget.schema.required!.map((e) => e.key).toSet();
+      }
+    }
+    final data = widget.payload ?? DataPayload.single({});
+    // column children
+    List<Widget> children = [];
+    for (Map<JsonSchema, int> row in widget.schema.formLayout) {
+      List<Widget> rowChildren = [];
+      for (JsonSchema sch in row.keys) {
+        if (hiddenKeys.contains(sch.key)) continue;
+        Widget child = Expanded(
+          flex: row[sch] ?? 1,
+          child: _FormViewRow(
+            key: Key(sch.key),
+            schema: sch,
+            formCache: widget.formCache,
+            value: data.get(0, sch.key),
+            required: requiredProps.contains(sch.key),
+            parentKeys: widget.parentKeys,
+            onSaved: (value) {
+              widget.formCache.set(sch.key, value, widget.parentKeys);
+            },
+            onChanged: (value) {
+              if (!triggers.hasTrigger(sch.key)) return;
+              debugPrint('onChanged: $value');
+              //TODO: handle compare show/hide
+              setState(() {});
+            },
+          ),
+        );
+        rowChildren.add(child);
+      }
+      children.add(Row(
+        mainAxisSize: MainAxisSize.max,
+        children: rowChildren,
+      ));
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: schema.formLayout
-          .map((row) => Row(
-                mainAxisSize: MainAxisSize.max,
-                children: row.keys
-                    .map((JsonSchema sch) => Expanded(
-                          flex: row[sch] ?? 1,
-                          child: _FormViewRow(
-                            key: Key(sch.key),
-                            schema: sch,
-                            formCache: formCache,
-                            value: data.get(0, sch.key),
-                            required: requiredProps.contains(sch.key),
-                            parentKeys: parentKeys,
-                            onSaved: (value) {
-                              formCache.set(sch.key, value, parentKeys);
-                            },
-                          ),
-                        ))
-                    .toList(),
-              ))
-          .toList(),
+      children: children,
     );
   }
 }
@@ -105,7 +141,8 @@ class _FormViewRow extends StatefulWidget {
   final JsonSchema schema;
   final bool required;
   final dynamic value;
-  final ValueSetter<String?>? onSaved;
+  final ValueSetter? onSaved;
+  final ValueChanged? onChanged;
   final FormCache formCache;
   final List parentKeys;
   const _FormViewRow({
@@ -115,6 +152,7 @@ class _FormViewRow extends StatefulWidget {
     this.required = false,
     this.value,
     this.onSaved,
+    this.onChanged,
     this.parentKeys = const [],
   });
 
@@ -129,6 +167,7 @@ class _FormViewRowState extends State<_FormViewRow> {
       schema: widget.schema,
       value: widget.value,
       onSaved: widget.onSaved,
+      onChanged: widget.onChanged,
       required: widget.required,
     );
   }

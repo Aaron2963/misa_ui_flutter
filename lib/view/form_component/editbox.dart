@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 class Editbox extends StatefulWidget {
   final JsonSchema schema;
   final dynamic value;
-  final ValueSetter<String?>? onSaved;
+  final ValueSetter? onSaved;
+  final ValueChanged? onChanged;
   final bool required;
   const Editbox({
     super.key,
@@ -14,6 +15,7 @@ class Editbox extends StatefulWidget {
     this.required = false,
     this.value,
     this.onSaved,
+    this.onChanged,
   });
 
   @override
@@ -21,6 +23,16 @@ class Editbox extends StatefulWidget {
 }
 
 class _EditboxState extends State<Editbox> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.value != null) {
+        widget.onChanged?.call(widget.value.toString());
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
@@ -43,6 +55,7 @@ class _EditboxState extends State<Editbox> {
         textInputAction: TextInputAction.next,
         initialValue: widget.value?.toString(),
         onSaved: widget.onSaved,
+        onChanged: widget.onChanged,
         validator: (value) {
           if (widget.required && (value == null || value.isEmpty)) {
             return locale.translate('This field is required');
