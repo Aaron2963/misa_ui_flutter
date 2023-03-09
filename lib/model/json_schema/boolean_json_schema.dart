@@ -71,4 +71,11 @@ class BooleanJsonSchema extends JsonSchema {
 
   @override
   bool get blankValue => false;
+
+  @override
+  String? validate(dynamic value) {
+    if (value == null) return null;
+    if (value is bool) return null;
+    return 'Invalid boolean value';
+  }
 }

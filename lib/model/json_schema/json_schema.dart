@@ -10,7 +10,7 @@ enum SchemaDataType { string, integer, boolean, object, array }
 
 enum SchemaPurpose { header, option, caption, quickact, timeline }
 
-enum CompareEvent { before, after, show, hide, key, filter}
+enum CompareEvent { before, after, show, hide, key, filter }
 
 class JsonSchema {
   final String key;
@@ -82,6 +82,10 @@ class JsonSchema {
   }
 
   dynamic get blankValue {
+    throw UnimplementedError();
+  }
+
+  String? validate(value) {
     throw UnimplementedError();
   }
 

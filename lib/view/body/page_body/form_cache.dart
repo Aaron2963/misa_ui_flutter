@@ -24,6 +24,9 @@ class FormCache {
     Map<String, dynamic> parent = _cache;
     for (var i = 0; i < parentKeys.length; i++) {
       String pk = parentKeys[i].toString();
+      if (pk.length > 2 && pk.substring(pk.length - 2) == '[]') {
+        continue;
+      }
       if (parent[pk] == null) {
         parent[pk] = {};
       }

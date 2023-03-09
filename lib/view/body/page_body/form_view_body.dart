@@ -10,6 +10,7 @@ import 'package:misa_ui_flutter/view/form_component/editbox.dart';
 import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
+// 表單主頁面
 class FormViewBody extends StatelessWidget {
   final DataPayload? payload;
   final String mode;
@@ -46,6 +47,7 @@ class FormViewBody extends StatelessWidget {
   }
 }
 
+// 表單區塊
 class _FormViewSegment extends StatefulWidget {
   final DataPayload? payload;
   final ObjectJsonSchema schema;
@@ -113,23 +115,20 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
             value: data.get(0, sch.key),
             required: requiredProps.contains(sch.key),
             parentKeys: widget.parentKeys,
-            onSaved: (value) {
-              widget.formCache.set(sch.key, value, widget.parentKeys);
-            },
             onChanged: (value) {
               if (!triggers.hasTrigger(sch.key)) return;
               debugPrint('onChanged: $value');
-              //TODO: handle compare show/hide
+              //handle compare show/hide
+              final showKeys =
+                  triggers.getActingKeys(sch.key, CompareEvent.show);
+              final hideKeys =
+                  triggers.getActingKeys(sch.key, CompareEvent.hide);
               if (value == false || value == null || value.isEmpty) {
-                hiddenKeys
-                    .addAll(triggers.getActingKeys(sch.key, CompareEvent.show));
-                hiddenKeys.removeAll(
-                    triggers.getActingKeys(sch.key, CompareEvent.hide));
+                hiddenKeys.addAll(showKeys);
+                hiddenKeys.removeAll(hideKeys);
               } else {
-                hiddenKeys.removeAll(
-                    triggers.getActingKeys(sch.key, CompareEvent.show));
-                hiddenKeys
-                    .addAll(triggers.getActingKeys(sch.key, CompareEvent.hide));
+                hiddenKeys.removeAll(showKeys);
+                hiddenKeys.addAll(hideKeys);
               }
               setState(() {});
             },
@@ -149,11 +148,11 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
   }
 }
 
+// 表單欄位
 class _FormViewRow extends StatefulWidget {
   final JsonSchema schema;
   final bool required;
   final dynamic value;
-  final ValueSetter? onSaved;
   final ValueChanged? onChanged;
   final FormCache formCache;
   final List parentKeys;
@@ -163,7 +162,6 @@ class _FormViewRow extends StatefulWidget {
     required this.formCache,
     this.required = false,
     this.value,
-    this.onSaved,
     this.onChanged,
     this.parentKeys = const [],
   });
@@ -177,10 +175,11 @@ class _FormViewRowState extends State<_FormViewRow> {
     final FormComponentController controller = FormComponentController(
       schema: widget.schema,
       value: widget.value,
-      onSaved: widget.onSaved,
       onChanged: widget.onChanged,
       required: widget.required,
-      onValidate: (v) => true,
+      onValidate: (v) => null,
+      onSaved: (v) =>
+          widget.formCache.set(widget.schema.key, v, widget.parentKeys),
     );
     //TODO: build component based on schema.component
     return Editbox(controller: controller);
@@ -190,7 +189,6 @@ class _FormViewRowState extends State<_FormViewRow> {
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
     if (widget.schema.type == SchemaDataType.object) {
-      // TODO: on save
       return _FormViewSubSegmentFrame(
         title: locale.translate(widget.schema.title ?? widget.schema.key),
         child: _FormViewSegment(
@@ -223,11 +221,12 @@ class _FormViewRowState extends State<_FormViewRow> {
                 _FormViewArrayItemFrame(
                   key: Key(
                       '${widget.parentKeys.join('.')}.${widget.schema.key}.$i-${valueList[i]}'),
+                  index: i,
                   schema: arraySchema.items,
                   formCache: widget.formCache,
                   value: valueList['$i'],
                   required: widget.required,
-                  parentKeys: [...widget.parentKeys, widget.schema.key, '$i'],
+                  parentKeys: [...widget.parentKeys, widget.schema.key],
                   onRemove: () => setState(() {
                     valueList['$i'] = null;
                   }),
@@ -242,6 +241,7 @@ class _FormViewRowState extends State<_FormViewRow> {
   }
 }
 
+// 表單子區塊外框
 class _FormViewSubSegmentFrame extends StatefulWidget {
   final String title;
   final Widget child;
@@ -325,7 +325,9 @@ class _FormViewSubSegmentFrameState extends State<_FormViewSubSegmentFrame> {
   }
 }
 
+// 表單陣列子項目外框：包含刪除按鈕
 class _FormViewArrayItemFrame extends StatelessWidget {
+  final int index;
   final JsonSchema schema;
   final dynamic value;
   final FormCache formCache;
@@ -334,6 +336,7 @@ class _FormViewArrayItemFrame extends StatelessWidget {
   final VoidCallback onRemove;
   const _FormViewArrayItemFrame({
     super.key,
+    required this.index,
     required this.schema,
     required this.value,
     required this.formCache,
@@ -356,10 +359,7 @@ class _FormViewArrayItemFrame extends StatelessWidget {
             formCache: formCache,
             value: value,
             required: required,
-            parentKeys: [...parentKeys, schema.key],
-            onSaved: (value) {
-              //TODO: on save
-            },
+            parentKeys: [...parentKeys, index.toString()],
           ),
         ),
         Positioned(

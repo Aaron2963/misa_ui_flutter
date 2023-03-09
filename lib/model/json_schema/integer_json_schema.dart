@@ -76,4 +76,20 @@ class IntegerJsonSchema extends JsonSchema {
 
   @override
   int get blankValue => max(0, minimum ?? 0);
+
+  @override
+  String? validate(dynamic value) {
+    if (value == null) return null;
+    int? v = int.tryParse(value.toString());
+    if (v == null) {
+      return 'Value is not an integer.';
+    }
+    if (minimum != null && v < minimum!) {
+      return 'Value is less than minimum.';
+    }
+    if (maximum != null && v > maximum!) {
+      return 'Value is greater than maximum.';
+    }
+    return null;
+  }
 }

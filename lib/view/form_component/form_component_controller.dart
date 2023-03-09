@@ -6,8 +6,9 @@ class FormComponentController {
   final dynamic value;
   final ValueSetter? onSaved;
   final ValueChanged? onChanged;
-  final bool Function(dynamic)? onValidate;
+  final String? Function(dynamic)? onValidate;
   final bool required;
+
   const FormComponentController({
     required this.schema,
     this.required = false,
@@ -16,4 +17,15 @@ class FormComponentController {
     this.onChanged,
     this.onValidate,
   });
+
+  String? validate(dynamic value) {
+    if (required && (value == null || value.isEmpty)) {
+      return 'This field is required';
+    }
+    String? schemaValidation = schema.validate(value);
+    if (schemaValidation != null) {
+      return schemaValidation;
+    }
+    return onValidate?.call(value);
+  }
 }

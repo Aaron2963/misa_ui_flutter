@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
@@ -114,5 +116,56 @@ class StringJsonSchema extends JsonSchema {
       return '[]';
     }
     return '';
+  }
+
+  @override
+  String? validate(dynamic value) {
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    if (value is! String) {
+      return 'Value is not a string';
+    }
+    if (minLength != null && value.length < minLength!) {
+      return 'Value is too short';
+    }
+    if (maxLength != null && value.length > maxLength!) {
+      return 'Value is too long';
+    }
+    if (pattern != null && !RegExp(pattern!).hasMatch(value)) {
+      return 'Value does not match pattern';
+    }
+    if (enumValues != null && !enumValues!.contains(value)) {
+      return 'Value is not in enum';
+    }
+    if (!_validateFormat(value)) {
+      return 'Value does not match format';
+    }
+    return null;
+  }
+
+  bool _validateFormat(String value) {
+    if (format == null) return true;
+    if (format == SchemaFormat.date || format == SchemaFormat.datetime) {
+      return DateTime.tryParse(value) != null;
+    }
+    if (format == SchemaFormat.time) {
+      return DateTime.tryParse('1970-01-01 $value') != null;
+    }
+    if (format == SchemaFormat.email) {
+      return RegExp(r'^.+@.+\..+$').hasMatch(value);
+    }
+    if (format == SchemaFormat.uri) {
+      return Uri.tryParse(value) != null;
+    }
+    if (format == SchemaFormat.json) {
+      try {
+        final json = jsonDecode(value);
+        return json is List || json is Map;
+      } catch (e) {
+        return false;
+      }
+    }
+    return true;
   }
 }

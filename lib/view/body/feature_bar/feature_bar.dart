@@ -404,6 +404,27 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
             'no form cache');
       },
     ));
+    actions.add(ElevatedButton.icon(
+      icon: const Icon(Icons.print),
+      label: Text(locale.translate('Print FormCache')),
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: () {
+        final formState = context
+            .read<BodyStateProvider>()
+            .advancedView
+            ?.formKey
+            ?.currentState;
+        if (formState == null) return;
+        if (!formState.validate()) return;
+        // TODO: call controller to insert/update data
+        print(context.read<BodyStateProvider>().advancedView?.formCache ??
+            'no form cache');
+      },
+    ));
     return actions;
   }
 
