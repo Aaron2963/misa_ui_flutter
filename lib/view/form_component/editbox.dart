@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
+import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
 class Editbox extends StatefulWidget {
-  final JsonSchema schema;
-  final dynamic value;
-  final ValueSetter? onSaved;
-  final ValueChanged? onChanged;
-  final bool required;
+  final FormComponentController controller;
   const Editbox({
     super.key,
-    required this.schema,
-    this.required = false,
-    this.value,
-    this.onSaved,
-    this.onChanged,
+    required this.controller,
   });
 
   @override
@@ -23,12 +15,14 @@ class Editbox extends StatefulWidget {
 }
 
 class _EditboxState extends State<Editbox> {
+  late final FormComponentController _controller;
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.value != null) {
-        widget.onChanged?.call(widget.value.toString());
+      if (_controller.value != null) {
+        _controller.onChanged?.call(_controller.value.toString());
       }
     });
   }
@@ -36,12 +30,12 @@ class _EditboxState extends State<Editbox> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
-    String title = locale.translate(widget.schema.title ?? widget.schema.key);
+    String title = locale.translate(_controller.schema.title ?? _controller.schema.key);
     Widget label = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(title),
-        if (widget.required)
+        if (_controller.required)
           const Text('*', style: TextStyle(color: Colors.red, fontSize: 20)),
       ],
     );
@@ -53,11 +47,11 @@ class _EditboxState extends State<Editbox> {
           border: const OutlineInputBorder(),
         ),
         textInputAction: TextInputAction.next,
-        initialValue: widget.value?.toString(),
-        onSaved: widget.onSaved,
-        onChanged: widget.onChanged,
+        initialValue: _controller.value?.toString(),
+        onSaved: _controller.onSaved,
+        onChanged: _controller.onChanged,
         validator: (value) {
-          if (widget.required && (value == null || value.isEmpty)) {
+          if (_controller.required && (value == null || value.isEmpty)) {
             return locale.translate('This field is required');
           }
           return null;

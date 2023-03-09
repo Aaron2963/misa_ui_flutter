@@ -84,6 +84,12 @@ class FormSegmentInterAction {
     return _triggers[triggerKey]!.containsKey(event);
   }
 
+  Set<String> getActingKeys(String triggerKey, CompareEvent event) {
+    if (!_triggers.containsKey(triggerKey)) return <String>{};
+    if (!_triggers[triggerKey]!.containsKey(event)) return <String>{};
+    return _triggers[triggerKey]![event]!.toSet();
+  }
+
   @override
   String toString() => _triggers.toString();
 }

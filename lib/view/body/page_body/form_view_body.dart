@@ -7,6 +7,7 @@ import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:misa_ui_flutter/view/form_component/editbox.dart';
+import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
 class FormViewBody extends StatelessWidget {
@@ -119,6 +120,17 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
               if (!triggers.hasTrigger(sch.key)) return;
               debugPrint('onChanged: $value');
               //TODO: handle compare show/hide
+              if (value == false || value == null || value.isEmpty) {
+                hiddenKeys
+                    .addAll(triggers.getActingKeys(sch.key, CompareEvent.show));
+                hiddenKeys.removeAll(
+                    triggers.getActingKeys(sch.key, CompareEvent.hide));
+              } else {
+                hiddenKeys.removeAll(
+                    triggers.getActingKeys(sch.key, CompareEvent.show));
+                hiddenKeys
+                    .addAll(triggers.getActingKeys(sch.key, CompareEvent.hide));
+              }
               setState(() {});
             },
           ),
@@ -162,14 +174,16 @@ class _FormViewRow extends StatefulWidget {
 
 class _FormViewRowState extends State<_FormViewRow> {
   Widget _buildComponent() {
-    //TODO: build component based on schema.component
-    return Editbox(
+    final FormComponentController controller = FormComponentController(
       schema: widget.schema,
       value: widget.value,
       onSaved: widget.onSaved,
       onChanged: widget.onChanged,
       required: widget.required,
+      onValidate: (v) => true,
     );
+    //TODO: build component based on schema.component
+    return Editbox(controller: controller);
   }
 
   @override
