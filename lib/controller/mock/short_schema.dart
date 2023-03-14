@@ -52,10 +52,14 @@ final Map<String, dynamic> mockSchema = {
           "title": "Editor",
           "component": "editbox",
         },
-        "_AuditorName": {
-          "type": "string",
+        "_Auditors": {
+          "type": "array",
           "title": "Auditor",
-          "component": "editbox",
+          "items": {
+            "type": "string",
+            "title": "",
+            "component": "editbox",
+          }
         },
       }
     },
@@ -91,12 +95,7 @@ final Map<String, dynamic> mockSchema = {
       "purpose": ["header"]
     }
   },
-  "filter": [
-    "TextbookID",
-    "SERNO",
-    "Name",
-    "ORIPublishDateTime"
-  ],
+  "filter": ["TextbookID", "SERNO", "Name", "ORIPublishDateTime"],
   "@id": "TextbookID",
   "dependentRequired": {
     "insert": ["SERNO", "Name"],

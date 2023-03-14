@@ -79,7 +79,6 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
     // register handle compare event
     for (JsonSchema sch in widget.schema.properties!.values) {
       if (sch.compare != null) {
-        debugPrint('register: ${sch.key}: ${sch.compare}');
         triggers.register(sch.key, sch.compare!);
       }
     }
@@ -117,7 +116,6 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
             parentKeys: widget.parentKeys,
             onChanged: (value) {
               if (!triggers.hasTrigger(sch.key)) return;
-              debugPrint('onChanged: $value');
               //handle compare show/hide
               final showKeys =
                   triggers.getActingKeys(sch.key, CompareEvent.show);
@@ -188,6 +186,7 @@ class _FormViewRowState extends State<_FormViewRow> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
+    // type: object
     if (widget.schema.type == SchemaDataType.object) {
       return _FormViewSubSegmentFrame(
         title: locale.translate(widget.schema.title ?? widget.schema.key),
@@ -200,9 +199,11 @@ class _FormViewRowState extends State<_FormViewRow> {
         ),
       );
     }
+    // type: array
     if (widget.schema.type == SchemaDataType.array) {
       final arraySchema = widget.schema as ArrayJsonSchema;
       final valueList = widget.value as Map<String, dynamic>;
+      final arraySequence = widget.value['@sequence'];
       int valueListLength = valueList.length;
       return _FormViewSubSegmentFrame(
           title: locale.translate(widget.schema.title ?? widget.schema.key),
@@ -217,23 +218,44 @@ class _FormViewRowState extends State<_FormViewRow> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var i = 0; i < valueList.length; i++)
+              for (String i in arraySequence)
                 _FormViewArrayItemFrame(
                   key: Key(
                       '${widget.parentKeys.join('.')}.${widget.schema.key}.$i-${valueList[i]}'),
-                  index: i,
+                  index: int.parse(i),
                   schema: arraySchema.items,
                   formCache: widget.formCache,
-                  value: valueList['$i'],
+                  value: valueList[i],
                   required: widget.required,
                   parentKeys: [...widget.parentKeys, widget.schema.key],
+                  isFirst: i == arraySequence.first,
+                  isLast: i == arraySequence.last,
+                  onSequeceChanged: (toPrev) {
+                    int index = arraySequence.indexOf(i);
+                    if (toPrev) {
+                      if (index == 0) return;
+                      arraySequence[index] = arraySequence[index - 1];
+                      arraySequence[index - 1] = i;
+                    } else {
+                      if (index == arraySequence.length - 1) return;
+                      arraySequence[index] = arraySequence[index + 1];
+                      arraySequence[index + 1] = i;
+                    }
+                    widget.formCache.set('@sequence', arraySequence,
+                        [...widget.parentKeys, widget.schema.key]);
+                    setState(() {});
+                  },
                   onRemove: () => setState(() {
-                    valueList['$i'] = null;
+                    valueList[i] = null;
+                    arraySequence.remove(i);
+                    widget.formCache.set(
+                        i, null, [...widget.parentKeys, widget.schema.key]);
                   }),
                 ),
             ],
           ));
     }
+    // type: string, boolean, integer
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: _buildComponent(),
@@ -333,6 +355,9 @@ class _FormViewArrayItemFrame extends StatelessWidget {
   final FormCache formCache;
   final List parentKeys;
   final bool required;
+  final bool isFirst;
+  final bool isLast;
+  final ValueSetter<bool> onSequeceChanged;
   final VoidCallback onRemove;
   const _FormViewArrayItemFrame({
     super.key,
@@ -342,8 +367,20 @@ class _FormViewArrayItemFrame extends StatelessWidget {
     required this.formCache,
     required this.parentKeys,
     required this.required,
+    required this.onSequeceChanged,
     required this.onRemove,
+    this.isFirst = false,
+    this.isLast = false,
   });
+
+  ButtonStyle _getButtonStyle([MaterialColor color = Colors.blue]) {
+    return ElevatedButton.styleFrom(
+      padding: const EdgeInsets.all(0),
+      shape: const CircleBorder(),
+      backgroundColor: color.shade400,
+      minimumSize: const Size(42, 36),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -363,16 +400,28 @@ class _FormViewArrayItemFrame extends StatelessWidget {
           ),
         ),
         Positioned(
-          right: 0,
-          top: 0,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(0),
-              shape: const CircleBorder(),
-              backgroundColor: Colors.red,
-            ),
-            onPressed: onRemove,
-            child: const Icon(Icons.close),
+          right: 16,
+          top: 8,
+          child: Row(
+            children: [
+              if (!isFirst)
+                ElevatedButton(
+                  style: _getButtonStyle(),
+                  onPressed: () => onSequeceChanged(true),
+                  child: const Icon(Icons.arrow_upward),
+                ),
+              if (!isLast)
+                ElevatedButton(
+                  style: _getButtonStyle(),
+                  onPressed: () => onSequeceChanged(false),
+                  child: const Icon(Icons.arrow_downward),
+                ),
+              ElevatedButton(
+                style: _getButtonStyle(Colors.red),
+                onPressed: onRemove,
+                child: const Icon(Icons.close),
+              ),
+            ],
           ),
         ),
       ],

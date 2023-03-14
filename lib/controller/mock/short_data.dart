@@ -13,7 +13,7 @@ final Map<String, dynamic> mockData = {
         "_AuthorName": "鄔佩麗.翟宗悌.陳麗英.黃裕惠 著",
         "_TranslatorName": "Tom Smith 譯",
         "_EditorName": "Friedrich Nitze 編",
-        "_AuditorName": "John Doe 審"
+        "_Auditors": ["John Doe", "Jane Doe"]
       },
       "_Pictures": [
         {

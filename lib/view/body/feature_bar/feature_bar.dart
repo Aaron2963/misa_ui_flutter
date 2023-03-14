@@ -402,6 +402,8 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
                 context.read<BodyStateProvider>().pageSchema ??
                     PageSchema.blank()) ??
             'no form cache');
+        context.read<BodyStateProvider>().advancedView?.onDispose?.call();
+        context.read<BodyStateProvider>().setAdvancedView(null);
       },
     ));
     actions.add(ElevatedButton.icon(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:misa_ui_flutter/model/json_schema/array_json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
@@ -8,12 +10,19 @@ class FormCache {
 
   FormCache(Map<String, dynamic> data) {
     _cache = data;
-    for (var key in _cache.keys) {
-      if (_cache[key] is List) {
-        _cache[key] = Map.fromIterables(
-          List.generate(_cache[key].length, (i) => i.toString()),
-          _cache[key],
-        );
+    List<Map<String, dynamic>> queue = [_cache];
+    while (queue.isNotEmpty) {
+      Map<String, dynamic> current = queue.removeAt(0);
+      for (String key in current.keys) {
+        if (current[key] is Map) {
+          queue.add(current[key]);
+        } else if (current[key] is List) {
+          current[key] = Map.fromIterables(
+            List.generate(current[key].length, (i) => i.toString()),
+            current[key],
+          );
+          current[key]['@sequence'] = current[key].keys.toList();
+        }
       }
     }
   }
@@ -21,9 +30,16 @@ class FormCache {
   Map<String, dynamic> get cache => _cache;
 
   void set(String key, dynamic value, [List parentKeys = const []]) {
+    List parents = List.from(parentKeys);
+    if (key.length > 2 &&
+        key.substring(key.length - 2) == '[]' &&
+        parents.isNotEmpty) {
+      key = parents.last.toString();
+      parents.removeLast();
+    }
     Map<String, dynamic> parent = _cache;
-    for (var i = 0; i < parentKeys.length; i++) {
-      String pk = parentKeys[i].toString();
+    for (var i = 0; i < parents.length; i++) {
+      String pk = parents[i].toString();
       if (pk.length > 2 && pk.substring(pk.length - 2) == '[]') {
         continue;
       }
@@ -32,11 +48,15 @@ class FormCache {
       }
       parent = parent[pk].cast<String, dynamic>();
     }
+    if (value == null) {
+      parent.remove(key);
+      return;
+    }
     parent[key] = value;
   }
 
   dynamic output(JsonSchema schema, [dynamic data]) {
-    data = data ?? _cache;
+    data = data ?? jsonDecode(jsonEncode(_cache));
     if (schema.type == SchemaDataType.object) {
       Map<String, dynamic> result = {};
       final sch = schema as ObjectJsonSchema;
@@ -47,7 +67,8 @@ class FormCache {
     } else if (schema.type == SchemaDataType.array) {
       final sch = schema as ArrayJsonSchema;
       List result = [];
-      for (String k in data.keys) {
+      for (int i = 0; i < data['@sequence'].length; i++) {
+        String k = data['@sequence'][i].toString();
         result.add(output(sch.items, data[k]));
       }
       return result;
