@@ -2,6 +2,7 @@ import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 
 class BooleanJsonSchema extends JsonSchema {
+  final String? text;
   BooleanJsonSchema({
     required super.key,
     super.dollarId,
@@ -22,6 +23,7 @@ class BooleanJsonSchema extends JsonSchema {
     super.readOnly,
     super.disabled,
     super.value,
+    this.text,
   }) : super(type: SchemaDataType.boolean);
 
   factory BooleanJsonSchema.fromJson(String key, Map<String, dynamic> json) {

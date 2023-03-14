@@ -7,6 +7,7 @@ import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:misa_ui_flutter/view/form_component/editbox.dart';
+import 'package:misa_ui_flutter/view/form_component/checkbox.dart' as misa;
 import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -121,7 +122,9 @@ class _FormViewSegmentState extends State<_FormViewSegment> {
                   triggers.getActingKeys(sch.key, CompareEvent.show);
               final hideKeys =
                   triggers.getActingKeys(sch.key, CompareEvent.hide);
-              if (value == false || value == null || value.isEmpty) {
+              if (value == false ||
+                  value == null ||
+                  (value is String && value.isEmpty)) {
                 hiddenKeys.addAll(showKeys);
                 hiddenKeys.removeAll(hideKeys);
               } else {
@@ -180,6 +183,9 @@ class _FormViewRowState extends State<_FormViewRow> {
           widget.formCache.set(widget.schema.key, v, widget.parentKeys),
     );
     //TODO: build component based on schema.component
+    if (widget.schema.component == 'checkbox') {
+      return misa.Checkbox(controller: controller);
+    }
     return Editbox(controller: controller);
   }
 
