@@ -43,6 +43,9 @@ dependencies:
   html_unescape: ^2.0.0
   flutter_html: ^2.2.1
   url_launcher: ^6.1.9
+  flutter_dotenv: ^5.0.2
+  http: ^0.13.5
+  localstorage: ^4.0.1+2
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +71,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - asset/images/image_placeholder.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

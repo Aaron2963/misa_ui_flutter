@@ -1,13 +1,21 @@
-import 'package:misa_ui_flutter/controller/mock/menu.dart';
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:misa_ui_flutter/controller/auth_controller.dart';
 import 'package:misa_ui_flutter/controller/schema_controller.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
+import 'package:http/http.dart' as http;
 
 final SchemaController _schemaController = SchemaController();
 
 class MenuController {
+  final Uri apiUrl = Uri.parse(dotenv.env['MENU_API_URL'] as String);
+
   Future<List<MisaMenuItem>> get() async {
-    //TODO: get menu from server
-    Map<String, dynamic> menu = mockMenu; // demo
+    Map<String, dynamic> menu = await fetch();
+    // Map<String, dynamic> menu = mockMenu;
+
+    // handle menu
     await _schemaController.setStorageFromMenu(menu);
     List<MisaMenuItem> result = [];
     for (String k in menu.keys) {
@@ -24,5 +32,15 @@ class MenuController {
       }
     }
     return result;
+  }
+
+  Future<Map<String, dynamic>> fetch() async {
+    final response = await http.get(apiUrl, headers: {'Authorization': AuthController.bearerToken});
+    if (response.statusCode == 200) {
+      final responseBody = utf8.decoder.convert(response.bodyBytes);
+      return Map<String, dynamic>.from(jsonDecode(responseBody));
+    } else {
+      throw Exception('Failed to load menu');
+    }
   }
 }
