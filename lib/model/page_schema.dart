@@ -6,16 +6,13 @@ class PageSchema extends ObjectJsonSchema {
   final List<JsonSchema>? options;
   final List<JsonSchema>? order;
   final List<JsonSchema>? filter;
-
-  @override
-  final String atId;
-  @override
-  final String atTable;
+  final String schemaPath;
 
   PageSchema({
+    required this.schemaPath,
     required super.properties,
-    required this.atId,
-    required this.atTable,
+    required super.atId,
+    required super.atTable,
     this.headers,
     this.options,
     this.order,
@@ -39,11 +36,11 @@ class PageSchema extends ObjectJsonSchema {
     super.readOnly,
     super.disabled,
     super.value,
-  }) : super(
-          key: 'pageRoot',
-        );
+  }) : super(key: 'pageRoot') {
+    assert(atId != null && atTable != null);
+  }
 
-  factory PageSchema.fromJson(Map<String, dynamic> json) {
+  factory PageSchema.fromJson(Map<String, dynamic> json, String schemaPath) {
     Map<String, JsonSchema> properties = {};
     Set<JsonSchema> required = {};
     Map<String, Set<JsonSchema>> dependentRequired = {};
@@ -114,6 +111,7 @@ class PageSchema extends ObjectJsonSchema {
     }
 
     return PageSchema(
+      schemaPath: schemaPath,
       properties: properties,
       required: required,
       dependentRequired: dependentRequired,
@@ -134,8 +132,9 @@ class PageSchema extends ObjectJsonSchema {
     );
   }
 
-  factory PageSchema.blank() {
+  factory PageSchema.blank(String schemaPath) {
     return PageSchema(
+      schemaPath: schemaPath,
       atId: '',
       atTable: '',
       properties: {},
@@ -149,7 +148,8 @@ class PageSchema extends ObjectJsonSchema {
   }
 
   List<JsonSchema>? get visibleFilter {
-    return filter?.where((f) => f.formOnly != true && f.component != 'hidden')
+    return filter
+        ?.where((f) => f.formOnly != true && f.component != 'hidden')
         .toList();
   }
 }

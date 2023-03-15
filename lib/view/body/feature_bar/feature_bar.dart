@@ -246,7 +246,7 @@ class _FeatureBarAction extends StatelessWidget {
       case ViewFeature.insert:
         return const InsertFeature();
       case ViewFeature.filter:
-        final pageSchema = bodyState.pageSchema ?? PageSchema.blank();
+        final pageSchema = bodyState.pageSchema ?? PageSchema.blank('');
         final QueryFilter filter = bodyState.payload?.filter != null
             ? QueryFilter.fromJson(
                 pageSchema, bodyState.payload!.filter!.toJson())
@@ -400,7 +400,7 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
         // TODO: call controller to insert/update data
         print(context.read<BodyStateProvider>().advancedView?.formCache?.output(
                 context.read<BodyStateProvider>().pageSchema ??
-                    PageSchema.blank()) ??
+                    PageSchema.blank('')) ??
             'no form cache');
         context.read<BodyStateProvider>().advancedView?.onDispose?.call();
         context.read<BodyStateProvider>().setAdvancedView(null);

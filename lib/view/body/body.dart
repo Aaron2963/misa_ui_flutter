@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:misa_ui_flutter/controller/data_controller.dart';
 import 'package:misa_ui_flutter/model/data_payload.dart';
@@ -68,8 +70,11 @@ class BodyStateProvider extends ChangeNotifier {
     this.pageSchema = pageSchema;
     this.viewMenuItem = viewMenuItem;
     advancedView = null;
-    if (pageSchema != null && pageSchema.atTable.isNotEmpty) {
-      _dataController = DataController(pageSchema.atTable);
+    if (pageSchema != null && pageSchema.atTable!.isNotEmpty) {
+      _dataController = DataController(
+        pageSchema.atTable!,
+        pageSchema.schemaPath,
+      );
     } else {
       _dataController = null;
     }
@@ -107,7 +112,7 @@ class BodyStateProvider extends ChangeNotifier {
       currentPage = page;
       if (notifyBeforeAwait) notifyListeners();
       payload = await _dataController!.select((page - 1) * limit, limit);
-      totalPage = (payload!.total / limit).ceil();
+      totalPage = max((payload!.total / limit).ceil(), 1);
       notifyListeners();
     } else {
       notifyListeners();

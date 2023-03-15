@@ -109,7 +109,8 @@ class ViewMenuItem extends MisaMenuItem {
       features.add(ViewFeature.values.byName(feature.toLowerCamelCase()));
     }
     PageSchema schema =
-        _schemaController.getSchemaByUri(map['schema']['\$ref']) ?? PageSchema.blank();
+        _schemaController.getSchemaByUri(map['schema']['\$ref']) ??
+            PageSchema.blank(map['schema']['\$ref']);
     return ViewMenuItem(
       title: title,
       url: title,

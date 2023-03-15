@@ -89,9 +89,12 @@ class JsonSchema {
     throw UnimplementedError();
   }
 
-  static Set<SchemaPurpose>? toPurposeSet(List<String>? list) {
+  static Set<SchemaPurpose>? toPurposeSet(dynamic list) {
     if (list == null) {
       return null;
+    }
+    if (list is String) {
+      list = <String>[list];
     }
     final set = <SchemaPurpose>{};
     for (final item in list) {
@@ -103,10 +106,10 @@ class JsonSchema {
     return set;
   }
 
-  static List<AtChainElement>? toAtChainList(List<Map<String, dynamic>>? list) {
+  static List<AtChainElement>? toAtChainList(List? list) {
     if (list == null) {
       return null;
     }
-    return list.map((e) => AtChainElement.fromJson(e)).toList();
+    return list.map((e) => AtChainElement.fromJson(Map<String, dynamic>.from(e))).toList();
   }
 }

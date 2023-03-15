@@ -1,5 +1,8 @@
-import 'package:misa_ui_flutter/controller/mock/short_schema.dart';
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:misa_ui_flutter/model/page_schema.dart';
+import 'package:http/http.dart' as http;
 
 class SchemaController {
   Map<String, PageSchema> storage = {};
@@ -26,8 +29,9 @@ class SchemaController {
   }
 
   Future<bool> setStorage(String uri) async {
-    // TODO: get schema from server
-    storage[uri] = PageSchema.fromJson(mockSchema);
+    final response = await http.get(Uri.parse(dotenv.env['SCHEMA_ROOT_URL']! + uri));
+    final responseBody = utf8.decoder.convert(response.bodyBytes);
+    storage[uri] = PageSchema.fromJson(jsonDecode(responseBody), uri);
     return true;
   }
 

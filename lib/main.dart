@@ -13,6 +13,7 @@ import 'package:misa_ui_flutter/view/top_navigation_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final _authController = AuthController();
+final _viewSettings = ViewSettings();
 
 void main() async {
   await dotenv.load(fileName: '.env');
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         return MaterialApp(
           title: 'Resource Management',
+          scaffoldMessengerKey: _viewSettings.snackBarKey,
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
@@ -92,7 +94,6 @@ class MainFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewSettings = ViewSettings();
     return Scaffold(
       appBar: TopNavigationBar(
         AppLocalizations.of(context)!.siteDisplayName,
@@ -107,7 +108,7 @@ class MainFrame extends StatelessWidget {
           return Row(
             children: [
               SizedBox(
-                width: viewSettings.sideBarWidth,
+                width: _viewSettings.sideBarWidth,
                 height: constraints.maxHeight,
                 child: const MainMenu(),
               ),

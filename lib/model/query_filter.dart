@@ -43,9 +43,7 @@ class QueryFilter {
     Map<String, List<Map<String, Map>>> result = {};
     for (final item in conditions.values) {
       String conj = item.operator.conj.toUpperCase();
-      if (!result.containsKey(conj)) {
-        result[conj] = [];
-      }
+      result.putIfAbsent(conj, () => <Map<String, Map>>[]);
       result[conj]!.add(item.toJson());
     }
     return result;

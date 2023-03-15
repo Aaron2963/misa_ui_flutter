@@ -12,6 +12,7 @@ class StringJsonSchema extends JsonSchema {
   final SchemaFormat? format;
   final List<String>? enumValues;
   final List<String>? texts;
+  final String? text;
 
   StringJsonSchema({
     required super.key,
@@ -39,6 +40,7 @@ class StringJsonSchema extends JsonSchema {
     super.readOnly,
     super.disabled,
     super.value,
+    this.text
   }) : super(type: SchemaDataType.string);
 
   factory StringJsonSchema.fromJson(String key, Map<String, dynamic> json) {
@@ -52,19 +54,19 @@ class StringJsonSchema extends JsonSchema {
       atId: json['@id'] as String?,
       atTable: json['@table'] as String?,
       atColumn: json['@column'] as String?,
-      atChain: JsonSchema.toAtChainList(
-          json['@chain'] as List<Map<String, dynamic>>?),
+      atChain: JsonSchema.toAtChainList(json['@chain']),
       format: SchemaFormat.values.asNameMap()[json['format'] ?? ''],
       description: json['description'] as String?,
       title: json['title'] as String?,
       renderFunction: json['renderFunction'] as String?,
-      purpose: JsonSchema.toPurposeSet(json['purpose'] as List<String>?),
+      purpose: JsonSchema.toPurposeSet(json['purpose']),
       component: json['component'] as String?,
       event: json['event'] as String?,
       formOnly: json['formOnly'] == true,
       readOnly: json['readOnly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'],
+      text: json['text'] as String?,
       enumValues: (json['enum'] as List<dynamic>?)?.cast<String>(),
       texts: (json['texts'] as List<dynamic>?)?.cast<String>(),
       compare: json['compare'] != null

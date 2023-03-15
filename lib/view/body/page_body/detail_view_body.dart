@@ -241,28 +241,38 @@ class _DetailViewRowState extends State<_DetailViewRow> {
 
     //當資料為圖片時
     if (widget.schema.component == 'image') {
+      final bool isUrl = (widget.content as String).startsWith('http');
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FadeInImage.assetNetwork(
-            height: 100.0,
-            width: 100.0,
-            alignment: Alignment.centerLeft,
-            placeholder: 'asset/images/image_placeholder.png',
-            image: widget.content,
-            fit: BoxFit.contain,
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.blue,
-              padding: const EdgeInsets.all(16),
-              backgroundColor: Colors.white,
-              shape: const CircleBorder(),
+          isUrl
+              ? FadeInImage.assetNetwork(
+                  height: 100.0,
+                  width: 100.0,
+                  alignment: Alignment.centerLeft,
+                  placeholder: 'asset/images/image_placeholder.png',
+                  image: widget.content,
+                  fit: BoxFit.contain,
+                )
+              : Image.asset(
+                  'asset/images/image_placeholder.png',
+                  height: 100.0,
+                  width: 100.0,
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.contain,
+                ),
+          if (isUrl)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding: const EdgeInsets.all(16),
+                backgroundColor: Colors.white,
+                shape: const CircleBorder(),
+              ),
+              child: const Icon(Icons.open_in_new),
+              onPressed: () => launchUrl(context, widget.content),
             ),
-            child: const Icon(Icons.open_in_new),
-            onPressed: () => launchUrl(context, widget.content),
-          ),
         ],
       );
     }

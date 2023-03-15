@@ -29,12 +29,18 @@ class DataPayload {
     int offset = 0,
     QueryFilter? filter,
   }) {
+    final List<Map<String, dynamic>> dataRows = [];
+    if (json['datas'] is List) {
+      for (final row in json['datas']) {
+        dataRows.add(Map<String, dynamic>.from(row));
+      }
+    }
     return DataPayload(
       offset: offset,
       total: int.parse(json['total'].toString()),
       page: int.parse(json['page'].toString()),
       redirectUrl: json['redirectUrl'],
-      data: json['datas'] ?? <Map<String, dynamic>>[],
+      data: dataRows,
       filter: filter,
     );
   }
@@ -45,6 +51,15 @@ class DataPayload {
       total: 1,
       page: 1,
       data: [json],
+    );
+  }
+
+  factory DataPayload.empty() {
+    return DataPayload(
+      offset: 0,
+      total: 0,
+      page: 1,
+      data: [],
     );
   }
 
