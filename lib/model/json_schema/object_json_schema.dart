@@ -80,7 +80,7 @@ class ObjectJsonSchema extends JsonSchema {
       component: json['component'] as String?,
       event: json['event'] as String?,
       formOnly: json['formOnly'] == true,
-      readOnly: json['readOnly'] == true,
+      readOnly: json['readOnly'] == true || json['readonly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'],
       compare: json['compare'] != null

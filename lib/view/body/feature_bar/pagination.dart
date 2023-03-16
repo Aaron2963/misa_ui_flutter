@@ -38,25 +38,23 @@ class PaginationBar extends StatelessWidget {
                 value: 'prev',
                 child: Icon(Icons.keyboard_double_arrow_left),
               ),
-              numbers.first != '1'
-                  ? const _PaginationBarCell(
-                      isActive: false,
-                      value: null,
-                      child: Icon(Icons.more_horiz, color: Colors.black26),
-                    )
-                  : const SizedBox(),
+              if (numbers.first != '1')
+                const _PaginationBarCell(
+                  isActive: false,
+                  value: null,
+                  child: Icon(Icons.more_horiz, color: Colors.black26),
+                ),
               ...numbers.map((number) => _PaginationBarCell(
                     value: number,
                     isActive: number == current.toString(),
                     child: Text(number),
                   )),
-              numbers.last != total.toString()
-                  ? const _PaginationBarCell(
-                      value: null,
-                      isActive: false,
-                      child: Icon(Icons.more_horiz, color: Colors.black26),
-                    )
-                  : const SizedBox(),
+              if (numbers.last != total.toString())
+                const _PaginationBarCell(
+                  value: null,
+                  isActive: false,
+                  child: Icon(Icons.more_horiz, color: Colors.black26),
+                ),
               const _PaginationBarCell(
                 isActive: false,
                 isLast: true,

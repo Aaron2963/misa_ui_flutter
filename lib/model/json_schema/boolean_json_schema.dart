@@ -41,7 +41,7 @@ class BooleanJsonSchema extends JsonSchema {
       component: json['component'],
       event: json['event'],
       formOnly: json['formOnly'] == true,
-      readOnly: json['readOnly'] == true,
+      readOnly: json['readOnly'] == true || json['readonly'] == true,
       disabled: json['disabled'] == true,
       value: json['value'] == true,
       compare: json['compare'] != null
