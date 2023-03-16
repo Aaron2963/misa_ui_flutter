@@ -49,10 +49,25 @@ class QueryFilter {
     return result;
   }
 
-  List<List<String>> get brief {
-    List<List<String>> result = [];
-    for (final item in conditions.values) {
-      result.add(item.toStrings());
+  Map<String, String> toFlatMap() {
+    final Map<String, String> result = {};
+    Map<String, List<Map<String, Map>>> json = toJson();
+    for (final conj in json.keys) {
+      for (int i = 0; i < json[conj]!.length; i++) {
+        final item = json[conj]![i];
+        for (final op in item.keys) {
+          for (final key in item[op]!.keys) {
+            final value = item[op]![key];
+            if (value is List) {
+              for (int j = 0; j < value.length; j++) {
+                result['$conj[$i][$op][$key][$j]'] = value[j];
+              }
+            } else {
+              result['$conj[$i][$op][$key]'] = value;
+            }
+          }
+        }
+      }
     }
     return result;
   }

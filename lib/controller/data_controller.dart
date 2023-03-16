@@ -21,15 +21,14 @@ class DataController {
   String get resourceName => tableName.toLowerCase().replaceAll(':', '.');
 
   Future<DataPayload> select(int offset, int limit) async {
-    final filterJson = filter?.toJson();
     try {
       final Map<String, dynamic> data = {
         '\$schema': schemaPath,
         'offset': offset.toString(),
         'limit': limit.toString(),
       };
-      if (filterJson != null) {
-        data.addAll(filterJson);
+      if (filter != null) {
+        data.addAll(filter!.toFlatMap());
       }
       final response = await http.post(
         Uri.parse('$apiRoot${RouterMapping.get(tableName, 'select')}'),

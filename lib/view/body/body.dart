@@ -98,6 +98,7 @@ class BodyStateProvider extends ChangeNotifier {
     }
     List<String> brief = [];
     for (QueryFilterItem filter in payload!.filter!.conditions.values) {
+      if (filter.isEmpty) continue;
       if (brief.isNotEmpty) brief.add(', ');
       brief = [...brief, ...filter.toStrings()];
     }

@@ -321,7 +321,6 @@ class _FilterConditionContentState extends State<_FilterConditionContent> {
             } else {
               widget.filterItem.value2 = controller.text;
             }
-            print('focus out: ${widget.filterItem.toStrings()}');
           });
         }
       },

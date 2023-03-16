@@ -2,7 +2,7 @@ import 'package:misa_ui_flutter/model/json_schema/json_schema.dart';
 
 enum QueryFilterConj { all, not, any }
 
-enum QueryFilterOp { equal, contain, range }
+enum QueryFilterOp { equal, contains, range }
 
 final Set<String> dateComponents = {
   "datetime",
@@ -17,6 +17,8 @@ class QueryFilterItem {
   QueryFilterItemOperator operator;
   String value1;
   String? value2;
+
+  bool get isEmpty => value1.isEmpty && value2 == null;
 
   QueryFilterItem({
     required this.schema,
@@ -38,7 +40,7 @@ class QueryFilterItem {
           conj: QueryFilterConj.all, op: QueryFilterOp.equal);
     } else {
       operator = QueryFilterItemOperator(
-          conj: QueryFilterConj.all, op: QueryFilterOp.contain);
+          conj: QueryFilterConj.all, op: QueryFilterOp.contains);
     }
     return QueryFilterItem(
       schema: schema,
@@ -64,9 +66,9 @@ class QueryFilterItem {
     }
     return {
       QueryFilterItemOperator(
-          conj: QueryFilterConj.all, op: QueryFilterOp.contain),
+          conj: QueryFilterConj.all, op: QueryFilterOp.contains),
       QueryFilterItemOperator(
-          conj: QueryFilterConj.not, op: QueryFilterOp.contain),
+          conj: QueryFilterConj.not, op: QueryFilterOp.contains),
       QueryFilterItemOperator(
           conj: QueryFilterConj.all, op: QueryFilterOp.equal),
       QueryFilterItemOperator(
@@ -80,7 +82,7 @@ class QueryFilterItem {
       case QueryFilterOp.equal:
         value = value1;
         break;
-      case QueryFilterOp.contain:
+      case QueryFilterOp.contains:
         value = [value1];
         break;
       case QueryFilterOp.range:
