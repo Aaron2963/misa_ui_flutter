@@ -183,13 +183,33 @@ class _FormViewRowState extends State<_FormViewRow> {
           widget.formCache.set(widget.schema.key, v, widget.parentKeys),
     );
     //TODO: build component based on schema.component
-    if (widget.schema.component == 'checkbox') {
-      return misa.Checkbox(controller: controller);
+    if (widget.schema.component == 'password') {
+      return misa.EditBox(controller: controller, obscureText: true);
+    }
+    if (widget.schema.component == 'number') {
+      return misa.EditBox(controller: controller, isNumber: true);
     }
     if (widget.schema.component == 'select') {
       return misa.Select(controller: controller);
     }
-    return misa.Editbox(controller: controller);
+    // searchSelect
+    // slider
+    if (widget.schema.component == 'checkbox') {
+      return misa.Checkbox(controller: controller);
+    }
+    // switch
+    // oneWayCheckbox
+    // datetime
+    // month
+    // week
+    // date
+    // time
+    // textarea
+    // radioTextarea
+    // richtext
+    // image
+    // file
+    return misa.EditBox(controller: controller);
   }
 
   @override

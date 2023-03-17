@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
-class Editbox extends StatefulWidget {
+class EditBox extends StatefulWidget {
   final FormComponentController controller;
-  const Editbox({
+  final bool obscureText;
+  final bool isNumber;
+  const EditBox({
     super.key,
     required this.controller,
+    this.obscureText = false,
+    this.isNumber = false,
   });
 
   @override
-  State<Editbox> createState() => _EditboxState();
+  State<EditBox> createState() => _EditBoxState();
 }
 
-class _EditboxState extends State<Editbox> {
+class _EditBoxState extends State<EditBox> {
   late final FormComponentController _controller;
   @override
   void initState() {
@@ -30,7 +35,8 @@ class _EditboxState extends State<Editbox> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
-    String title = locale.translate(_controller.schema.title ?? _controller.schema.key);
+    String title =
+        locale.translate(_controller.schema.title ?? _controller.schema.key);
     Widget label = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -48,6 +54,10 @@ class _EditboxState extends State<Editbox> {
         ),
         textInputAction: TextInputAction.next,
         initialValue: _controller.value?.toString(),
+        obscureText: widget.obscureText,
+        inputFormatters: [
+          if (widget.isNumber) FilteringTextInputFormatter.allow(RegExp('[.0-9]')),
+        ],
         onSaved: _controller.onSaved,
         onChanged: _controller.onChanged,
         validator: (value) {
