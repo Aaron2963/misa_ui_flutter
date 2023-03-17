@@ -6,8 +6,7 @@ import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
-import 'package:misa_ui_flutter/view/form_component/editbox.dart';
-import 'package:misa_ui_flutter/view/form_component/checkbox.dart' as misa;
+import 'package:misa_ui_flutter/view/form_component/form_component.dart' as misa;
 import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -42,6 +41,7 @@ class FormViewBody extends StatelessWidget {
           schema: pageSchema,
           formCache: formCache,
           mode: mode,
+          required: true,
         ),
       ),
     );
@@ -186,7 +186,10 @@ class _FormViewRowState extends State<_FormViewRow> {
     if (widget.schema.component == 'checkbox') {
       return misa.Checkbox(controller: controller);
     }
-    return Editbox(controller: controller);
+    if (widget.schema.component == 'select') {
+      return misa.Select(controller: controller);
+    }
+    return misa.Editbox(controller: controller);
   }
 
   @override

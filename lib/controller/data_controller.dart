@@ -63,19 +63,55 @@ class DataController {
     return DataPayload.empty();
   }
 
+  Future<DataPayload> briefSelect() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiRoot${RouterMapping.get(tableName, 'select')}'),
+        headers: {'Authorization': AuthController.bearerToken},
+      );
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to load data: status code ${response.statusCode}');
+      }
+      final responseBody = utf8.decoder.convert(response.bodyBytes);
+      final json = jsonDecode(responseBody);
+      // show error message
+      if (json.containsKey('_Error') && json['_Error'] == true) {
+        final message = json['Message'];
+        ViewSettings()
+            .snackBarKey
+            .currentState
+            ?.showSnackBar(SnackBar(content: Text(message)));
+        throw Exception(message);
+      }
+      // return data
+      return DataPayload.fromJson(
+        json: json,
+        offset: 0,
+      );
+    } catch (e) {
+      debugPrint('[ERROR] briefSelect $tableName');
+      debugPrint(e.toString());
+    }
+    return DataPayload.empty();
+  }
+
   Future<DataPayload> create(Map<String, dynamic> data) {
+    // TODO: implement create
     return Future.delayed(const Duration(seconds: 1), () {
       return DataPayload.single(mockData['datas'][0]);
     });
   }
 
   Future<DataPayload> update(Map<String, dynamic> data) {
+    // TODO: implement update
     return Future.delayed(const Duration(seconds: 1), () {
       return DataPayload.single(mockData['datas'][0]);
     });
   }
 
   Future<DataPayload> delete(Map<String, dynamic> data) {
+    // TODO: implement delete
     return Future.delayed(const Duration(seconds: 1), () {
       return DataPayload.single(mockData['datas'][0]);
     });
