@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:misa_ui_flutter/controller/auth_controller.dart';
 import 'package:misa_ui_flutter/controller/router_mapping.dart';
 import 'package:misa_ui_flutter/controller/schema_controller.dart';
+import 'package:misa_ui_flutter/controller/settings.dart';
 import 'package:misa_ui_flutter/model/menu_item.dart';
-import 'package:http/http.dart' as http;
 
 final SchemaController _schemaController = SchemaController();
 
@@ -37,7 +37,7 @@ class MenuController {
   }
 
   Future<Map<String, dynamic>> fetch() async {
-    final response = await http
+    final response = await httpClient
         .get(apiUrl, headers: {'Authorization': AuthController.bearerToken});
     if (response.statusCode == 200) {
       final responseBody = utf8.decoder.convert(response.bodyBytes);
@@ -48,7 +48,7 @@ class MenuController {
   }
 
   Future fetchRouters() async {
-    final response = await http.get(routerUrl);
+    final response = await httpClient.get(routerUrl);
     if (response.statusCode == 200) {
       final responseBody = utf8.decoder.convert(response.bodyBytes);
       final json = Map<String, dynamic>.from(jsonDecode(responseBody));

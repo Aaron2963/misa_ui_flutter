@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'package:misa_ui_flutter/controller/settings.dart';
 import 'package:misa_ui_flutter/controller/storage.dart';
 
 class AuthController {
@@ -13,22 +14,27 @@ class AuthController {
     String password, [
     String customerAlias = '',
   ]) async {
-    final response = await http.post(
-      Uri.parse(dotenv.env['LOGIN_API_URL']!),
-      body: <String, dynamic>{
-        'LoginName': loginName,
-        'PWD': password,
-        'CustomerAlias': customerAlias,
-      },
-    );
-    if (response.statusCode == 200) {
-      final responseBody = utf8.decoder.convert(response.bodyBytes);
-      final data = jsonDecode(responseBody);
-      if (data.containsKey('ACSToken')) {
-        token = data['ACSToken'];
-        await cacheToken();
-        return null;
+    try {
+      final response = await httpClient.post(
+        Uri.parse(dotenv.env['LOGIN_API_URL']!),
+        body: <String, dynamic>{
+          'LoginName': loginName,
+          'PWD': password,
+          'CustomerAlias': customerAlias,
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseBody = utf8.decoder.convert(response.bodyBytes);
+        final data = jsonDecode(responseBody);
+        if (data.containsKey('ACSToken')) {
+          token = data['ACSToken'];
+          await cacheToken();
+          return null;
+        }
       }
+    } catch (e) {
+      debugPrint('[AuthController.login] error');
+      debugPrint(e.toString());
     }
     return 'log-in-notification-fail';
   }
@@ -40,7 +46,7 @@ class AuthController {
     if (token.isEmpty) {
       return false;
     }
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse(dotenv.env['CHECK_LOGIN_API_URL']!),
       headers: {'Authorization': bearerToken},
     );

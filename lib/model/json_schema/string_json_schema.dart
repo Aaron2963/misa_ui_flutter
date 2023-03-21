@@ -90,14 +90,18 @@ class StringJsonSchema extends JsonSchema {
       return locale.translate(texts![enumValues!.indexOf(value)]);
     }
     if (['date', 'datetime'].contains(component)) {
-      DateTime dt = DateTime.parse(value);
-      if ((dt.year == 1970 || dt.year == 1000) &&
-          dt.month == 1 &&
-          dt.day == 1) {
+      try {
+        final dt = DateTime.parse(value);
+        if ((dt.year == 1970 || dt.year == 1000) &&
+            dt.month == 1 &&
+            dt.day == 1) {
+          return '';
+        }
+        if (component == 'date') {
+          return value.split(' ')[0];
+        }
+      } catch (e) {
         return '';
-      }
-      if (component == 'date') {
-        return value.split(' ')[0];
       }
     }
     return value.toString();

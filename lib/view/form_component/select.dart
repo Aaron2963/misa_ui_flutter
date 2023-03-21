@@ -28,8 +28,14 @@ class _SelectState extends State<Select> {
     if (context.mounted) {
       setState(() {
         options = Map.fromIterables(
-          payload.data.map((e) => e[chain.atId] ?? ''),
-          payload.data.map((e) => e[chain.titleFieldName] ?? ''),
+          [
+            if (!_controller.required) '',
+            ...payload.data.map((e) => e[chain.atId] ?? ''),
+          ],
+          [
+            if (!_controller.required) '',
+            ...payload.data.map((e) => e[chain.titleFieldName] ?? ''),
+          ],
         );
       });
     }
@@ -39,13 +45,18 @@ class _SelectState extends State<Select> {
   void initState() {
     super.initState();
     _controller = widget.controller;
+    var schema = _controller.schema;
     // enum values
-    if (_controller.schema is StringJsonSchema &&
-        (_controller.schema as StringJsonSchema).enumValues != null) {
+    if (schema is StringJsonSchema && schema.enumValues != null) {
       options = Map.fromIterables(
-        (_controller.schema as StringJsonSchema).enumValues!,
-        (_controller.schema as StringJsonSchema).texts ??
-            (_controller.schema as StringJsonSchema).enumValues!,
+        [
+          if (!_controller.required) '',
+          ...schema.enumValues!,
+        ],
+        [
+          if (!_controller.required) '',
+          ...(schema.texts ?? schema.enumValues!),
+        ],
       );
     }
     // trigger onchange event

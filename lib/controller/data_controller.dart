@@ -5,9 +5,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:misa_ui_flutter/controller/auth_controller.dart';
 import 'package:misa_ui_flutter/controller/mock/short_data.dart';
 import 'package:misa_ui_flutter/controller/router_mapping.dart';
+import 'package:misa_ui_flutter/controller/settings.dart';
 import 'package:misa_ui_flutter/model/data_payload.dart';
 import 'package:misa_ui_flutter/model/query_filter.dart';
-import 'package:http/http.dart' as http;
 import 'package:misa_ui_flutter/settings/view_settings.dart';
 
 class DataController {
@@ -30,7 +30,7 @@ class DataController {
       if (filter != null) {
         data.addAll(filter!.toFlatMap());
       }
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$apiRoot${RouterMapping.get(tableName, 'select')}'),
         headers: {'Authorization': AuthController.bearerToken},
         body: data,
@@ -65,7 +65,7 @@ class DataController {
 
   Future<DataPayload> briefSelect() async {
     try {
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$apiRoot${RouterMapping.get(tableName, 'select')}'),
         headers: {'Authorization': AuthController.bearerToken},
       );

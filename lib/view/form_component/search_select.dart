@@ -30,6 +30,9 @@ class _SearchSelectState extends State<SearchSelect> {
     if (context.mounted) {
       setState(() {
         options = [];
+        if (!_controller.required) {
+          options.add(const _DropdownSearchItem(''));
+        }
         for (var i = 0; i < payload.data.length; i++) {
           options.add(_DropdownSearchItem(
             payload.data[i][chain.atId] ?? '',
@@ -47,6 +50,9 @@ class _SearchSelectState extends State<SearchSelect> {
     var schema = _controller.schema;
     // enum values
     if (schema is StringJsonSchema && schema.enumValues != null) {
+      if (!_controller.required) {
+        options.add(const _DropdownSearchItem(''));
+      }
       for (int i = 0; i < schema.enumValues!.length; i++) {
         options.add(_DropdownSearchItem(
           schema.enumValues![i],

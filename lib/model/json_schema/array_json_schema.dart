@@ -47,7 +47,7 @@ class ArrayJsonSchema extends JsonSchema {
       description: json['description'] as String?,
       title: json['title'] as String?,
       renderFunction: json['renderFunction'] as String?,
-      purpose: JsonSchema.toPurposeSet(json['purpose'] as List<String>?),
+      purpose: JsonSchema.toPurposeSet(json['purpose'] as List?),
       component: json['component'] as String?,
       event: json['event'] as String?,
       formOnly: json['formOnly'] == true,

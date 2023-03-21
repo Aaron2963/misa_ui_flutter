@@ -80,7 +80,7 @@ class LoginPage extends StatelessWidget {
                                 }
                                 navi.pushNamedAndRemoveUntil('/main', (route) => false);
                               } on Exception catch (e) {
-                                final message = e.toString().substring(11);
+                                final message = e.toString();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(locale.translate(message)),

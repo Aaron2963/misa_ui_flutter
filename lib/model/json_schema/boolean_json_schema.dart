@@ -37,7 +37,7 @@ class BooleanJsonSchema extends JsonSchema {
       description: json['description'],
       title: json['title'],
       renderFunction: json['renderFunction'],
-      purpose: JsonSchema.toPurposeSet(json['purpose'] as List<String>?),
+      purpose: JsonSchema.toPurposeSet(json['purpose'] as List?),
       component: json['component'],
       event: json['event'],
       formOnly: json['formOnly'] == true,

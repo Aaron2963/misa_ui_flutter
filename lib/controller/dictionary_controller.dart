@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'package:misa_ui_flutter/controller/settings.dart';
 
 class DictionaryController {
   final String langCode;
@@ -9,7 +9,7 @@ class DictionaryController {
   DictionaryController(this.langCode);
 
   Future<Map<String, String>> getDictionary() async {
-    final response = await http
+    final response = await httpClient
         .get(Uri.parse('${dotenv.env['LANG_API_ROOT']}$langCode.lang'));
     if (response.statusCode != 200) {
       throw Exception(
