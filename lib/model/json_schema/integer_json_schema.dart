@@ -6,11 +6,13 @@ import 'package:misa_ui_flutter/settings/misa_locale.dart';
 class IntegerJsonSchema extends JsonSchema {
   final int? minimum;
   final int? maximum;
+  final int? step;
 
   IntegerJsonSchema({
     required super.key,
     this.minimum,
     this.maximum,
+    this.step,
     super.dollarId,
     super.dollarRef,
     super.dollarSchema,
@@ -36,6 +38,7 @@ class IntegerJsonSchema extends JsonSchema {
       key: key,
       minimum: json['minimum'] as int?,
       maximum: json['maximum'] as int?,
+      step: json['step'] as int?,
       dollarId: json['\$id'] as String?,
       dollarRef: json['\$ref'] as String?,
       atId: json['@id'] as String?,

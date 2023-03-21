@@ -6,7 +6,8 @@ import 'package:misa_ui_flutter/model/json_schema/object_json_schema.dart';
 import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
-import 'package:misa_ui_flutter/view/form_component/form_component.dart' as misa;
+import 'package:misa_ui_flutter/view/form_component/form_component.dart'
+    as misa;
 import 'package:misa_ui_flutter/view/form_component/form_component_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -200,12 +201,26 @@ class _FormViewRowState extends State<_FormViewRow> {
       return misa.SearchSelect(controller: controller);
     }
     // slider
+    if (widget.schema.component == 'slider') {
+      if (widget.schema.type == SchemaDataType.integer) {
+        return misa.IntegerSlider(controller: controller);
+      }
+      throw Exception('Slider only support integer type');
+    }
     // checkbox
     if (widget.schema.component == 'checkbox') {
-      return misa.Checkbox(controller: controller);
+      if (widget.schema.type == SchemaDataType.boolean) {
+        return misa.Checkbox(controller: controller);
+      }
+    }
+    // oneWayCheckbox
+    if (widget.schema.component == 'oneWayCheckbox') {
+      if (widget.schema.type == SchemaDataType.boolean) {
+        return misa.Checkbox(controller: controller, isOneWay: true);
+      }
+      throw Exception('Checkbox only support boolean type');
     }
     // switch
-    // oneWayCheckbox
     // datetime
     // month
     // week

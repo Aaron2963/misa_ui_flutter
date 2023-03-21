@@ -7,7 +7,8 @@ import 'package:provider/provider.dart';
 
 class Checkbox extends StatefulWidget {
   final FormComponentController controller;
-  const Checkbox({super.key, required this.controller});
+  final bool isOneWay;
+  const Checkbox({super.key, required this.controller, this.isOneWay = false});
 
   @override
   State<Checkbox> createState() => _CheckboxState();
@@ -15,6 +16,7 @@ class Checkbox extends StatefulWidget {
 
 class _CheckboxState extends State<Checkbox> {
   bool currentValue = false;
+  late final bool originalValue;
   late final FormComponentController _controller;
   String? _label;
 
@@ -29,6 +31,8 @@ class _CheckboxState extends State<Checkbox> {
       _label = (_controller.schema as StringJsonSchema).text;
     }
     _label = _label ?? _controller.schema.title ?? _controller.schema.key;
+    originalValue =
+        _controller.value != null ? _controller.value == true : currentValue;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_controller.value != null) {
         setState(() {
@@ -41,13 +45,16 @@ class _CheckboxState extends State<Checkbox> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
+    final disabled = widget.isOneWay && originalValue;
     return InkWell(
-      onTap: () {
-        setState(() {
-          currentValue = !currentValue;
-        });
-        _controller.onChanged?.call(currentValue);
-      },
+      onTap: disabled
+          ? null
+          : () {
+              setState(() {
+                currentValue = !currentValue;
+              });
+              _controller.onChanged?.call(currentValue);
+            },
       child: FormField<bool>(
         builder: (context) {
           return Padding(
@@ -56,10 +63,13 @@ class _CheckboxState extends State<Checkbox> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                currentValue
-                    ? const Icon(Icons.check_box, color: Colors.blue)
-                    : const Icon(Icons.check_box_outline_blank,
-                        color: Colors.blue),
+                !currentValue
+                    ? const Icon(Icons.check_box_outline_blank,
+                        color: Colors.blue)
+                    : Icon(
+                        Icons.check_box,
+                        color: disabled ? Colors.grey : Colors.blue,
+                      ),
                 const SizedBox(width: 8),
                 Text(locale.translate(_label ?? '')),
               ],
