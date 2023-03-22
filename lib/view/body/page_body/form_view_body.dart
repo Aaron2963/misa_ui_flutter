@@ -221,6 +221,12 @@ class _FormViewRowState extends State<_FormViewRow> {
       throw Exception('Checkbox only support boolean type');
     }
     // switch
+    if (widget.schema.component == 'switch') {
+      if (widget.schema.type == SchemaDataType.boolean) {
+        return misa.Switch(controller: controller);
+      }
+      throw Exception('Switch only support boolean type');
+    }
     // datetime
     // month
     // week
