@@ -61,6 +61,7 @@ class FormCache {
       Map<String, dynamic> result = {};
       final sch = schema as ObjectJsonSchema;
       for (JsonSchema prop in sch.properties!.values) {
+        if (!data.containsKey(prop.key)) continue;
         result[prop.key] = output(prop, data[prop.key]);
       }
       return result;

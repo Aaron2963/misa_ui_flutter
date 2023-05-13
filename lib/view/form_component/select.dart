@@ -72,6 +72,7 @@ class _SelectState extends State<Select> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<MisaLocale>();
+    String value = _controller.value?.toString() ?? '';
     String title =
         locale.translate(_controller.schema.title ?? _controller.schema.key);
     Widget label = Row(
@@ -82,10 +83,18 @@ class _SelectState extends State<Select> {
           const Text('*', style: TextStyle(color: Colors.red, fontSize: 20)),
       ],
     );
+    if (options.isEmpty) {
+      options = {
+        '...': 'loading...'
+      };
+    }
+    if (!options.keys.contains(value)) {
+      value = options.keys.first;
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: DropdownButtonFormField<String>(
-        value: _controller.value?.toString() ?? '',
+        value: value,
         decoration: InputDecoration(
           label: label,
           border: const OutlineInputBorder(),
