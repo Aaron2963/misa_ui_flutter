@@ -96,18 +96,38 @@ class DataController {
     return DataPayload.empty();
   }
 
-  Future<DataPayload> create(Map<String, dynamic> data) {
-    // TODO: implement create
-    return Future.delayed(const Duration(seconds: 1), () {
-      return DataPayload.single(mockData['datas'][0]);
-    });
+  Future<DataPayload> create(Map<String, dynamic> data) async {
+    final Map<String, dynamic> payload = {'\$schema': schemaPath, ...data};
+    try {
+      final response = await httpClient.post(
+        Uri.parse('$apiRoot${RouterMapping.get(tableName, 'create')}'),
+        headers: {'Authorization': AuthController.bearerToken},
+        body: payload,
+      );
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to load data: status code ${response.statusCode}');
+      }
+      final responseBody = utf8.decoder.convert(response.bodyBytes);
+      final json = jsonDecode(responseBody);
+      // show error message
+      if (json.containsKey('_Error') && json['_Error'] == true) {
+        final message = json['Message'];
+        ViewSettings()
+            .snackBarKey
+            .currentState
+            ?.showSnackBar(SnackBar(content: Text(message)));
+        throw Exception(message);
+      }
+      // return data
+      return DataPayload.single(json);
+    } catch (e) {
+      return DataPayload.empty();
+    }
   }
 
   Future<DataPayload> update(Map<String, dynamic> data) {
-    // TODO: implement update
-    return Future.delayed(const Duration(seconds: 1), () {
-      return DataPayload.single(mockData['datas'][0]);
-    });
+    return create(data);
   }
 
   Future<DataPayload> delete(Map<String, dynamic> data) {

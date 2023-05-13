@@ -11,8 +11,17 @@ class DataPayload {
   final String _dataJson;
 
   List<Map<String, dynamic>> get data {
-    List dataList = jsonDecode(_dataJson) as List;
-    return dataList.map((e) => e as Map<String, dynamic>).toList();
+    try {
+      List dataList = jsonDecode(_dataJson) as List;
+      return dataList.map((e) => e as Map<String, dynamic>).toList();
+    } catch (e) {
+      return <Map<String, dynamic>>[];
+    }
+  }
+
+  Map<String, dynamic>? get first {
+    if (data.isEmpty) return null;
+    return data.first;
   }
 
   DataPayload({

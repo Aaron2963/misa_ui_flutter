@@ -6,8 +6,8 @@ import 'package:misa_ui_flutter/settings/misa_locale.dart';
 import 'package:misa_ui_flutter/view/body/advanced_view.dart';
 import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/filter_feature.dart';
-import 'package:misa_ui_flutter/view/body/feature_bar/insert_feature.dart';
 import 'package:misa_ui_flutter/view/body/feature_bar/pagination.dart';
+import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:provider/provider.dart';
 
 enum _FeatureBarPosition { left, right, center }
@@ -243,8 +243,6 @@ class _FeatureBarAction extends StatelessWidget {
   Widget? _buildFeature(BuildContext context, ViewFeature feature) {
     BodyStateProvider bodyState = context.watch<BodyStateProvider>();
     switch (feature) {
-      case ViewFeature.insert:
-        return const InsertFeature();
       case ViewFeature.filter:
         final pageSchema = bodyState.pageSchema ?? PageSchema.blank('');
         final QueryFilter filter = bodyState.payload?.filter != null
@@ -281,6 +279,17 @@ class _FeatureBarAction extends StatelessWidget {
       ),
     );
     onPressed() {
+      if (feature == ViewFeature.insert) {
+        final formKey = GlobalKey<FormState>();
+        context.read<BodyStateProvider>().setAdvancedView(AdvancedView(
+              title: locale.translate('Insert'),
+              viewMode: ViewMode.form,
+              data: [<String, dynamic>{}],
+              formKey: formKey,
+              formCache: FormCache(<String, dynamic>{}),
+            ));
+        return;
+      }
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -389,21 +398,25 @@ class _AdvancedFormFeatureBar extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        final formState = context
-            .read<BodyStateProvider>()
-            .advancedView
-            ?.formKey
-            ?.currentState;
+        final BodyStateProvider bodyState = context.read<BodyStateProvider>();
+        final AdvancedView? advancedView = bodyState.advancedView;
+        final formState = advancedView?.formKey?.currentState;
         if (formState == null) return;
         if (!formState.validate()) return;
         formState.save();
-        // TODO: call controller to insert/update data
-        print(context.read<BodyStateProvider>().advancedView?.formCache?.output(
-                context.read<BodyStateProvider>().pageSchema ??
-                    PageSchema.blank('')) ??
-            'no form cache');
-        context.read<BodyStateProvider>().advancedView?.onDispose?.call();
-        context.read<BodyStateProvider>().setAdvancedView(null);
+        final pageSchema = bodyState.pageSchema;
+        if (pageSchema != null && advancedView!.data.isNotEmpty) {
+          final output = advancedView.formCache?.output(pageSchema);
+          (advancedView.data.first.isEmpty
+                  ? bodyState.dataController?.create(output)
+                  : bodyState.dataController?.update(output))!
+              .then((payload) {
+            if (payload.data.isEmpty) return;
+            bodyState.refreshData();
+          });
+        }
+        advancedView?.onDispose?.call();
+        bodyState.setAdvancedView(null);
       },
     ));
     actions.add(ElevatedButton.icon(

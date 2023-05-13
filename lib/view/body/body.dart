@@ -64,29 +64,29 @@ class BodyStateProvider extends ChangeNotifier {
   int limit = 5;
   int? totalPage;
   DataPayload? payload;
-  DataController? _dataController;
+  DataController? dataController;
 
   void changeViewMenu({PageSchema? pageSchema, ViewMenuItem? viewMenuItem}) {
     this.pageSchema = pageSchema;
     this.viewMenuItem = viewMenuItem;
     advancedView = null;
     if (pageSchema != null && pageSchema.atTable!.isNotEmpty) {
-      _dataController = DataController(
+      dataController = DataController(
         pageSchema.atTable!,
         pageSchema.schemaPath,
       );
     } else {
-      _dataController = null;
+      dataController = null;
     }
     notifyListeners();
   }
 
   void setQueryFilter(QueryFilter? filter) async {
-    if (_dataController != null) {
-      _dataController!.filter = filter;
+    if (dataController != null) {
+      dataController!.filter = filter;
       currentPage = 1;
       totalPage = null;
-      payload = await _dataController!.select(0, limit);
+      payload = await dataController!.select(0, limit);
       totalPage = (payload!.total / limit).ceil();
       notifyListeners();
     }
@@ -109,10 +109,10 @@ class BodyStateProvider extends ChangeNotifier {
       {bool notifyBeforeAwait = false}) async {
     if (totalPage != null && page > totalPage!) return;
     currentPage = page;
-    if (_dataController != null) {
+    if (dataController != null) {
       currentPage = page;
       if (notifyBeforeAwait) notifyListeners();
-      payload = await _dataController!.select((page - 1) * limit, limit);
+      payload = await dataController!.select((page - 1) * limit, limit);
       totalPage = max((payload!.total / limit).ceil(), 1);
       notifyListeners();
     } else {
@@ -123,6 +123,13 @@ class BodyStateProvider extends ChangeNotifier {
 
   void setAdvancedView(AdvancedView? view) {
     advancedView = view;
+    notifyListeners();
+  }
+
+  void refreshData() async {
+    totalPage = null;
+    payload = await dataController!.select(0, limit);
+    totalPage = (payload!.total / limit).ceil();
     notifyListeners();
   }
 }
