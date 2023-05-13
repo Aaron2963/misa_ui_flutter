@@ -11,7 +11,7 @@ import 'package:misa_ui_flutter/view/body/body.dart';
 import 'package:misa_ui_flutter/view/body/page_body/form_cache.dart';
 import 'package:provider/provider.dart';
 
-const _cellWidth = 100.0;
+const _cellMinWidth = 100.0;
 const _operationColumnWidth = 80.0;
 const _columnSpacing = 12.0;
 
@@ -59,8 +59,8 @@ class _ListViewBodyState extends State<ListViewBody> {
 
   DataCell _buildCell(dynamic value, {VoidCallback? onTap}) {
     return DataCell(
-      SizedBox(
-        width: _cellWidth,
+      ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: _cellMinWidth),
         child: Tooltip(
           message: value.toString(),
           child: Text(
@@ -112,104 +112,117 @@ class _ListViewBodyState extends State<ListViewBody> {
     }
     // 計算表格寬度
     int headersLength = min(pageSchema.headers!.length,
-        (tableWidthLimit / (_cellWidth + _columnSpacing * 2)).floor());
+        (tableWidthLimit / (_cellMinWidth + _columnSpacing * 2)).floor());
     List<JsonSchema> headers = List.generate(
       headersLength,
       (index) => pageSchema.headers![index],
     );
 
-    return DataTable(
-      showCheckboxColumn: true,
-      columnSpacing: _columnSpacing,
-      columns: [
-        for (int i = 0; i < headers.length; i++)
-          _buildColumn(
-            title: locale.translate(headers[i].title ?? headers[i].key),
-            schema: headers[i],
-            columnIndex: i,
-            tooltip: locale.translate(
-              'Sort By %s',
-              locale.translate(headers[i].title ?? headers[i].key),
-            ),
-          ),
-        const DataColumn(
-            label: Text(
-              '操作',
-              style: TextStyle(color: Colors.black54),
-            ),
-            numeric: true,
-            onSort: null),
-      ],
-      rows: List<DataRow>.generate(data.length, (int i) {
-        final Map<String, dynamic> d = data[i];
-        return DataRow(
-          color: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.selected)) {
-                return Theme.of(context).colorScheme.primary.withOpacity(0.08);
-              }
-              if (i.isEven) {
-                return Colors.grey.withOpacity(0.2);
-              }
-              return null;
-            },
-          ),
-          selected: selected.contains(d[pageSchema.atId]),
-          onSelectChanged: (value) => setState(() {
-            if (value == true) {
-              selected.add(d[pageSchema.atId]);
-            } else {
-              selected.remove(d[pageSchema.atId]);
-            }
-          }),
-          cells: [
-            ...headers.map((JsonSchema e) {
-              return _buildCell(e.display(locale, d[e.key] ?? ''));
-            }).toList(),
-            DataCell(
-              SizedBox(
-                width: _operationColumnWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.info_outline, size: 18.0),
-                      tooltip: locale.translate('Detail'),
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        context
-                            .read<BodyStateProvider>()
-                            .setAdvancedView(AdvancedView(
-                              title: locale.translate('Detail'),
-                              viewMode: ViewMode.detail,
-                              data: [d],
-                            ));
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, size: 18.0),
-                      tooltip: locale.translate('Edit'),
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        final formKey = GlobalKey<FormState>();
-                        context
-                            .read<BodyStateProvider>()
-                            .setAdvancedView(AdvancedView(
-                              title: locale.translate('Edit'),
-                              viewMode: ViewMode.form,
-                              data: [d],
-                              formKey: formKey,
-                              formCache: FormCache(d),
-                            ));
-                      },
-                    ),
-                  ],
-                ),
+    return SizedBox(
+      width: double.infinity,
+      child: DataTable(
+        showCheckboxColumn: true,
+        columnSpacing: _columnSpacing,
+        columns: [
+          for (int i = 0; i < headers.length; i++)
+            _buildColumn(
+              title: locale.translate(headers[i].title ?? headers[i].key),
+              schema: headers[i],
+              columnIndex: i,
+              tooltip: locale.translate(
+                'Sort By %s',
+                locale.translate(headers[i].title ?? headers[i].key),
               ),
             ),
-          ],
-        );
-      }),
+          const DataColumn(
+              label: Text(
+                '操作',
+                style: TextStyle(color: Colors.black54),
+              ),
+              numeric: true,
+              onSort: null),
+        ],
+        rows: List<DataRow>.generate(data.length, (int i) {
+          final Map<String, dynamic> d = data[i];
+          return DataRow(
+            color: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.08);
+                }
+                if (i.isEven) {
+                  return Colors.grey.withOpacity(0.2);
+                }
+                return null;
+              },
+            ),
+            selected: selected.contains(d[pageSchema.atId]),
+            onSelectChanged: (value) => setState(() {
+              if (value == true) {
+                selected.add(d[pageSchema.atId]);
+              } else {
+                selected.remove(d[pageSchema.atId]);
+              }
+            }),
+            cells: [
+              ...headers.map((JsonSchema e) {
+                return _buildCell(e.display(locale, d[e.key] ?? ''));
+              }).toList(),
+              DataCell(
+                _OperationButtons(
+                  d,
+                  key: ValueKey('ops-$i-${d[pageSchema.atId]}'),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _OperationButtons extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _OperationButtons(this.data, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final MisaLocale locale = context.watch<MisaLocale>();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.info_outline, size: 18.0),
+          tooltip: locale.translate('Detail'),
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            context.read<BodyStateProvider>().setAdvancedView(AdvancedView(
+                  title: locale.translate('Detail'),
+                  viewMode: ViewMode.detail,
+                  data: [data],
+                ));
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.edit_outlined, size: 18.0),
+          tooltip: locale.translate('Edit'),
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            final formKey = GlobalKey<FormState>();
+            context.read<BodyStateProvider>().setAdvancedView(AdvancedView(
+                  title: locale.translate('Edit'),
+                  viewMode: ViewMode.form,
+                  data: [data],
+                  formKey: formKey,
+                  formCache: FormCache(data),
+                ));
+          },
+        ),
+      ],
     );
   }
 }

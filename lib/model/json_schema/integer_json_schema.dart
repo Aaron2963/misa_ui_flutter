@@ -74,7 +74,7 @@ class IntegerJsonSchema extends JsonSchema {
   @override
   String display(MisaLocale locale, dynamic value) {
     value = int.tryParse(value.toString()) ?? '';
-    return value;
+    return value.toString();
   }
 
   @override
