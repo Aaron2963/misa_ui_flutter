@@ -50,7 +50,6 @@ class _MainMenuState extends State<MainMenu> {
 
 class MainMenuStateProvider extends ChangeNotifier {
   Key? _activeKey;
-  model.MisaMenuItem? _activeItem;
 
   Key? get activeKey => _activeKey;
 
